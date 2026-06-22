@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>عداد الأجرة المغربية v2</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; touch-action:manipulation; }
+        html,body { height:100%; overflow:hidden; background:#0a0a0a; font-family:'Segoe UI',Tahoma,sans-serif; color:#fff; }
+        body { display:flex; flex-direction:column; }
+
+        /* ===== TOP BAR ===== */
+        .top-bar {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:10px 14px; background:#111; border-bottom:1px solid #222;
+            flex-shrink:0; gap:8px;
+        }
+        .top-bar .logo { font-size:0.85rem; font-weight:700; color:#00c853; letter-spacing:1px; }
+        .top-bar .city-badge {
+            background:#1a1a1a; border:1px solid #333; color:#00c853;
+            padding:6px 12px; border-radius:20px; font-size:0.75rem; font-weight:600;
+            display:flex; align-items:center; gap:6px; cursor:pointer;
+        }
+        .top-bar .city-badge .gps-dot {
+            width:8px; height:8px; border-radius:50%; background:#333;
+        }
+        .top-bar .city-badge .gps-dot.active {
+            background:#00c853; box-shadow:0 0 6px #00c853;
+            animation:gpsPulse 1.5s infinite;
+        }
+        @keyframes gpsPulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .top-bar .mode-badge {
+            padding:6px 10px; border-radius:20px; font-size:0.7rem; font-weight:700;
+            background:#1a1a1a; border:1px solid #333; cursor:pointer;
+        }
+        .mode-badge.day { color:#ffab00; border-color:#ffab0033; }
+        .mode-badge.night { color:#00c853; border-color:#00c85333; }
+        .mode-badge.auto { color:#00c853; border-color:#00c85333; }
+
+        /* ===== CITY MODAL ===== */
+        .city-modal {
+            position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:200;
+            display:none; flex-direction:column; padding:20px; overflow-y:auto;
+        }
+        .city-modal.show { display:flex; }
+        .city-modal-header {
+            display:flex; justify-content:space-between; align-items:center;
+            padding:16px 0; border-bottom:1px solid #222; margin-bottom:16px;
+        }
+        .city-modal-header h2 { color:#00c853; font-size:1.1rem; }
+        .city-modal-header .close-btn {
+            background:none; border:none; color:#ff4444; font-size:1.5rem; cursor:pointer;
+        }
+        .city-search {
+            width:100%; background:#1a1a1a; border:1px solid #333; color:#fff;
+            padding:12px 16px; border-radius:10px; font-size:1rem; margin-bottom:16px;
+            outline:none; direction:rtl;
+        }
+        .city-search:focus { border-color:#00c853; }
+        .city-list {
+            display:grid; grid-template-columns:1fr 1fr; gap:8px;
+        }
+        .city-item {
+            background:#1a1a1a; border:1px solid #222; border-radius:10px;
+            padding:14px; text-align:center; cursor:pointer; transition:all 0.2s;
+        }
+        .city-item:hover, .city-item.active {
+            border-color:#00c853; background:#00c85311;
+        }
+        .city-item .city-name { font-size:0.85rem; color:#fff; margin-bottom:4px; }
+        .city-item .city-code { font-size:0.7rem; color:#555; font-family:monospace; }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display:flex; gap:4px; padding:8px 12px; background:#111;
+            border-bottom:1px solid #222; flex-shrink:0;
+        }
+        .tab {
+            flex:1; background:transparent; border:1px solid #333; color:#666;
+            padding:10px; border-radius:10px; font-size:0.8rem; cursor:pointer;
+            font-family:inherit; transition:all 0.2s; position:relative; font-weight:600;
+        }
+        .tab.active { background:#00c85311; border-color:#00c853; color:#00c853; }
+        .tab .dot { position:absolute; top:6px; left:6px; width:7px; height:7px; border-radius:50%; background:#333; }
+        .tab .dot.on { background:#00c853; box-shadow:0 0 6px #00c853; }
+
+        /* ===== METER VIEW ===== */
+        .meter-view { flex:1; display:none; flex-direction:column; padding:16px; overflow-y:auto; }
+        .meter-view.active { display:flex; }
+
+        /* ===== LCD ===== */
+        .lcd-case {
+            background:linear-gradient(145deg,#0d1f0d,#0a150a);
+            border:3px solid #1a2e1a; border-radius:20px;
+            padding:24px 16px; box-shadow:0 10px 40px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5);
+            position:relative; overflow:hidden; margin-bottom:16px;
+        }
+        .lcd-case::before {
+            content:''; position:absolute; inset:0;
+            background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.1) 3px,rgba(0,0,0,0.1) 6px);
+            pointer-events:none; z-index:2;
+        }
+        .lcd-header {
+            text-align:center; font-size:0.6rem; color:#2a4a2a;
+            letter-spacing:4px; margin-bottom:12px; font-weight:600;
+        }
+        .lcd-price {
+            font-size:4.5rem; font-weight:900; color:#00ff41;
+            font-family:'Courier New',monospace; text-align:center;
+            text-shadow:0 0 20px rgba(0,255,65,0.4); direction:ltr;
+            letter-spacing:4px; line-height:1; position:relative; z-index:3;
+        }
+        .lcd-price.tick { animation:tick 0.15s ease; }
+        @keyframes tick { 0%{transform:scale(1)} 50%{transform:scale(1.03);filter:brightness(1.3)} 100%{transform:scale(1)} }
+        .lcd-currency { text-align:center; font-size:0.9rem; color:#2a6b2a; margin-top:8px; font-family:monospace; position:relative; z-index:3; }
+
+        /* ===== AUTO WAIT BANNER ===== */
+        .auto-wait-banner {
+            background:#ffab0011; border:1px solid #ffab0033; border-radius:8px;
+            padding:10px 12px; margin-bottom:12px; text-align:center;
+            font-size:0.8rem; color:#ffab00; display:none; font-weight:600;
+        }
+        .auto-wait-banner.show { display:block; }
+
+        /* ===== INFO GRID ===== */
+        .info-grid {
+            display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px;
+        }
+        .info-card {
+            background:#151515; border:1px solid #222; border-radius:12px;
+            padding:14px 8px; text-align:center;
+        }
+        .info-card .label { font-size:0.6rem; color:#555; margin-bottom:6px; letter-spacing:1px; }
+        .info-card .value { font-size:1.3rem; color:#00ff41; font-family:'Courier New',monospace; font-weight:700; direction:ltr; }
+        .info-card .value.cyan { color:#00e5ff; }
+        .info-card .value.amber { color:#ffab00; }
+
+        /* ===== STATUS LEDS ===== */
+        .status-row {
+            display:flex; justify-content:center; gap:30px; margin-bottom:20px;
+        }
+        .status-item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+        .status-led {
+            width:14px; height:14px; border-radius:50%; background:#1a1a1a;
+            border:2px solid #222; transition:all 0.3s;
+        }
+        .status-led.on-green { background:#00c853; border-color:#00c853; box-shadow:0 0 12px #00c853; }
+        .status-led.on-amber { background:#ffab00; border-color:#ffab00; box-shadow:0 0 12px #ffab00; }
+        .status-led.on-red { background:#ff4444; border-color:#ff4444; box-shadow:0 0 12px #ff4444; }
+        .status-label { font-size:0.6rem; color:#444; }
+
+        /* ===== CONTROLS ===== */
+        .ctrl-row {
+            display:flex; justify-content:center; gap:16px; margin-bottom:16px;
+        }
+        .ctrl-btn {
+            width:72px; height:72px; border-radius:50%; border:none;
+            font-size:1.5rem; cursor:pointer; display:flex;
+            align-items:center; justify-content:center;
+            box-shadow:0 4px 15px rgba(0,0,0,0.5); transition:all 0.15s;
+            font-family:inherit; color:#fff;
+        }
+        .ctrl-btn:active { transform:scale(0.92); }
+        .ctrl-btn:disabled { opacity:0.3; cursor:not-allowed; }
+        .ctrl-btn.go { background:linear-gradient(145deg,#00c853,#00a344); }
+        .ctrl-btn.go.pulse { animation:goPulse 2s infinite; }
+        @keyframes goPulse { 0%,100%{box-shadow:0 4px 20px rgba(0,200,83,0.3)} 50%{box-shadow:0 4px 35px rgba(0,200,83,0.6)} }
+        .ctrl-btn.hold { background:linear-gradient(145deg,#ffab00,#e69500); }
+        .ctrl-btn.hold.active { box-shadow:0 0 25px rgba(255,171,0,0.5); background:linear-gradient(145deg,#e69500,#cc7a00); }
+        .ctrl-btn.stop { background:linear-gradient(145deg,#ff4444,#cc3333); }
+        .ctrl-btn.reset { background:linear-gradient(145deg,#555,#333); color:#aaa; }
+        .ctrl-name { font-size:0.7rem; color:#555; text-align:center; margin-top:4px; }
+
+        /* ===== GPS PANEL ===== */
+        .gps-panel {
+            background:#151515; border:1px solid #222; border-radius:12px;
+            padding:14px; margin-bottom:16px; display:none;
+        }
+        .gps-panel.show { display:block; }
+        .gps-panel .gps-title {
+            font-size:0.75rem; color:#00c853; margin-bottom:10px;
+            display:flex; justify-content:space-between; align-items:center;
+        }
+        .gps-panel .gps-title .gps-status { font-size:0.65rem; color:#555; }
+        .gps-panel .gps-status.accurate { color:#00c853; }
+        .gps-panel .gps-status.poor { color:#ffab00; }
+        .gps-bar {
+            display:flex; align-items:center; gap:8px; margin-bottom:8px;
+        }
+        .gps-bar .sat-icon { font-size:1.2rem; }
+        .gps-bar .sat-bars { display:flex; gap:3px; align-items:flex-end; height:20px; }
+        .gps-bar .sat-bar {
+            width:6px; background:#222; border-radius:2px; transition:all 0.5s;
+        }
+        .gps-bar .sat-bar.fill { background:#00c853; }
+        .gps-data {
+            display:grid; grid-template-columns:1fr 1fr; gap:8px;
+            font-family:'Courier New',monospace; font-size:0.75rem; color:#888;
+        }
+        .gps-data span { color:#00ff41; }
+
+        /* ===== SUMMARY ===== */
+        .summary-bar {
+            display:flex; justify-content:space-around; padding:12px;
+            background:#111; border-top:1px solid #222; flex-shrink:0;
+        }
+        .summary-item { text-align:center; }
+        .summary-label { font-size:0.6rem; color:#444; margin-bottom:3px; }
+        .summary-value { font-size:1rem; font-family:'Courier New',monospace; font-weight:700; color:#00c853; }
+        .summary-value.total { color:#fff; }
+
+        /* ===== BOTTOM ===== */
+        .bottom-bar {
+            display:flex; justify-content:space-around; padding:10px;
+            background:#0a0a0a; border-top:1px solid #1a1a1a; flex-shrink:0;
+        }
+        .bottom-btn {
+            background:transparent; border:none; color:#555;
+            font-size:0.7rem; display:flex; flex-direction:column;
+            align-items:center; gap:4px; cursor:pointer; font-family:inherit;
+        }
+        .bottom-btn span { font-size:1.3rem; }
+        .bottom-btn.active { color:#00c853; }
+
+        /* ===== PANELS ===== */
+        .panel-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; z-index:99; }
+        .panel-overlay.show { display:block; }
+        .panel {
+            position:fixed; bottom:0; left:0; right:0; background:#111;
+            border-top:2px solid #222; border-radius:24px 24px 0 0;
+            padding:24px; max-height:85vh; overflow-y:auto;
+            transform:translateY(100%); transition:transform 0.3s ease; z-index:100;
+        }
+        .panel.open { transform:translateY(0); }
+        .panel-title {
+            font-size:1rem; font-weight:700; margin-bottom:18px; padding-bottom:12px;
+            border-bottom:1px solid #222; display:flex; justify-content:space-between; align-items:center;
+            color:#00c853;
+        }
+        .panel-close { background:none; border:none; color:#ff4444; font-size:1.4rem; cursor:pointer; }
+
+        .input-group { margin-bottom:16px; }
+        .input-group label { display:block; font-size:0.8rem; color:#888; margin-bottom:6px; }
+        .input-group input {
+            width:100%; background:#1a1a1a; border:1px solid #333; color:#fff;
+            padding:12px; border-radius:10px; font-size:1rem; font-family:inherit; outline:none; direction:rtl;
+        }
+        .input-group input:focus { border-color:#00c853; }
+        .panel-btn {
+            width:100%; background:#00c853; color:#000; border:none;
+            padding:14px; border-radius:10px; font-weight:700; font-size:0.9rem;
+            cursor:pointer; font-family:inherit; margin-top:8px;
+        }
+        .panel-btn.danger { background:#ff4444; color:#fff; }
+
+        .history-item {
+            background:#1a1a1a; border:1px solid #222; border-radius:10px;
+            padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;
+        }
+        .history-info { flex:1; }
+        .history-date { font-size:0.65rem; color:#444; margin-bottom:4px; }
+        .history-route { font-size:0.8rem; color:#aaa; }
+        .history-amount { font-size:1.1rem; font-family:'Courier New',monospace; font-weight:700; color:#00c853; }
+
+        .empty-state { text-align:center; padding:40px; color:#333; }
+        .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+        .stat-card { background:#1a1a1a; border:1px solid #222; border-radius:12px; padding:16px; text-align:center; }
+        .stat-value { font-size:1.5rem; font-family:'Courier New',monospace; font-weight:700; color:#00c853; }
+        .stat-label { font-size:0.65rem; color:#444; margin-top:4px; }
+
+        .tariff-info { background:#0d1f0d; border:1px solid #1a3a1a; border-radius:10px; padding:14px; }
+        .tariff-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #1a2e1a; font-size:0.85rem; }
+        .tariff-row:last-child { border-bottom:none; }
+        .tariff-row .label { color:#555; }
+        .tariff-row .value { color:#00ff41; font-family:'Courier New',monospace; }
+        .official-seal {
+            display:inline-flex; align-items:center; gap:4px;
+            background:#00c85322; border:1px solid #00c85344; color:#00c853;
+            padding:4px 10px; border-radius:4px; font-size:0.65rem; font-weight:600;
+        }
+
+        /* ===== RECEIPT ===== */
+        .receipt-page {
+            position:fixed; inset:0; background:#0a0a0a; z-index:500;
+            display:none; flex-direction:column; padding:20px; overflow-y:auto;
+        }
+        .receipt-page.show { display:flex; }
+        .receipt-header { padding:16px 0; border-bottom:1px solid #222; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; }
+        .receipt-header h2 { color:#00c853; font-size:1.1rem; }
+        .receipt-close { background:none; border:none; color:#ff4444; font-size:1.5rem; cursor:pointer; }
+        .receipt-price-box { text-align:center; padding:30px; background:#0d1f0d; border:1px solid #1a3a1a; border-radius:16px; margin-bottom:20px; }
+        .receipt-price { font-size:3.5rem; font-weight:900; color:#00ff41; font-family:'Courier New',monospace; }
+        .receipt-details { background:#151515; border:1px solid #222; border-radius:12px; padding:16px; margin-bottom:16px; }
+        .receipt-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1a1a1a; font-size:0.9rem; }
+        .receipt-row .label { color:#666; }
+        .receipt-row .value { color:#fff; font-family:'Courier New',monospace; }
+        .receipt-actions { display:flex; gap:10px; }
+        .receipt-actions button { flex:1; padding:14px; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-family:inherit; }
+        .receipt-actions .save { background:#00c853; color:#000; }
+        .receipt-actions .share { background:#0066ff; color:#fff; }
+        .receipt-actions .back { background:#222; color:#888; }
+
+        /* ===== CUSTOMER PAGE ===== */
+        .customer-page {
+            position:fixed; inset:0; background:#fff; z-index:600;
+            display:none; flex-direction:column; align-items:center;
+            padding:30px 20px; overflow-y:auto;
+        }
+        .customer-page.show { display:flex; }
+        .customer-close {
+            position:absolute; top:16px; left:16px;
+            background:#000; color:#fff; border:none;
+            width:40px; height:40px; border-radius:50%;
+            font-size:1.2rem; cursor:pointer; z-index:10;
+        }
+        .customer-header {
+            width:100%; text-align:center; margin-bottom:30px; margin-top:20px;
+        }
+        .customer-header h1 { font-size:1.3rem; color:#000; margin-bottom:8px; }
+        .customer-header .sub { font-size:0.85rem; color:#666; }
+        .customer-qr-box {
+            background:#fff; border:2px solid #00c853; border-radius:20px;
+            padding:20px; margin-bottom:24px; box-shadow:0 10px 40px rgba(0,200,83,0.15);
+        }
+        .customer-qr-box canvas { width:200px; height:200px; }
+        .customer-qr-hint {
+            text-align:center; color:#00c853; font-size:0.9rem;
+            font-weight:700; margin-top:12px;
+        }
+        .customer-info {
+            width:100%; max-width:350px; background:#f8f8f8;
+            border-radius:16px; padding:20px; margin-bottom:24px;
+        }
+        .customer-info-row {
+            display:flex; justify-content:space-between;
+            padding:12px 0; border-bottom:1px solid #eee;
+            font-size:0.95rem;
+        }
+        .customer-info-row:last-child { border-bottom:none; }
+        .customer-info-row .label { color:#888; }
+        .customer-info-row .value { color:#000; font-weight:700; font-family:'Courier New',monospace; }
+        .customer-info-row .value.price { color:#00c853; font-size:1.8rem; }
+        .customer-footer {
+            width:100%; text-align:center; color:#aaa;
+            font-size:0.75rem; margin-top:auto; padding-top:20px;
+        }
+
+        .toast {
+            position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(100px);
+            background:#00c853; color:#000; padding:12px 24px; border-radius:10px;
+            font-weight:700; z-index:1000; opacity:0; transition:all 0.3s; pointer-events:none;
+        }
+        .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+        .gps-loading {
+            position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.95);
+            z-index:1000; display:none; flex-direction:column; align-items:center; justify-content:center;
+        }
+        .gps-loading.show { display:flex; }
+        .gps-loading .spinner {
+            width:60px; height:60px; border:4px solid #222; border-top-color:#00c853;
+            border-radius:50%; animation:spin 1s linear infinite; margin-bottom:20px;
+        }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        .gps-loading p { color:#888; font-size:0.9rem; }
+        .gps-loading .gps-btn {
+            margin-top:20px; padding:12px 24px; background:#00c853; color:#000;
+            border:none; border-radius:10px; font-weight:700; cursor:pointer; font-family:inherit;
+        }
+        .gps-loading .gps-btn.skip { background:#222; color:#888; }
+    </style>
+</head>
+<body>
+
+    <!-- GPS Loading -->
+    <div class="gps-loading" id="gpsLoading">
+        <div class="spinner"></div>
+        <p>جاري تحديد الموقع...</p>
+        <p style="font-size:0.75rem;color:#555;margin-top:8px">يرجى تفعيل GPS</p>
+        <button class="gps-btn skip" onclick="skipGPS()">تخطي (محاكاة)</button>
+    </div>
+
+    <!-- City Modal -->
+    <div class="city-modal" id="cityModal">
+        <div class="city-modal-header">
+            <h2>📍 اختر المدينة</h2>
+            <button class="close-btn" onclick="closeCityModal()">✕</button>
+        </div>
+        <input type="text" class="city-search" id="citySearch" placeholder="ابحث عن مدينة..." oninput="filterCities()">
+        <div class="city-list" id="cityList"></div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="top-bar">
+        <div class="logo">🚖 TAXI.ma</div>
+        <div class="city-badge" onclick="openCityModal()">
+            <span id="currentCityName">الدار البيضاء</span>
+            <span class="gps-dot active" id="gpsDot"></span>
+        </div>
+        <div class="mode-badge auto" id="modeBadge" onclick="toggleMode()">🌙 ليلي</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="meter" onclick="switchTab('meter')"><span>📟</span> العداد</button>
+        <button class="tab" data-tab="settings" onclick="switchTab('settings')"><span>⚙️</span> الإعدادات</button>
+        <button class="tab" data-tab="history" onclick="switchTab('history')"><span>📋</span> السجل <span class="dot" id="historyDot"></span></button>
+        <button class="tab" data-tab="customer" onclick="openCustomer()"><span>🧑</span> الزبون</button>
+    </div>
+
+    <!-- Meter View -->
+    <div class="meter-view active" id="meterView">
+        <div class="lcd-case">
+            <div class="lcd-header">◈ عَدَّادُ الأُجْرَةِ ◈</div>
+            <div class="lcd-price" id="lcdPrice">0.00</div>
+            <div class="lcd-currency">درهم مغربي</div>
+        </div>
+
+        <div class="auto-wait-banner" id="waitBanner">⏸️ وضع الانتظار مفعّل (تحتسب الأجرة)</div>
+
+        <div class="info-grid">
+            <div class="info-card"><div class="label">المسافة</div><div class="value" id="dispDistance">0.0</div></div>
+            <div class="info-card"><div class="label">مدة الرحلة</div><div class="value cyan" id="dispTime">00:00</div></div>
+            <div class="info-card"><div class="label">وقت الانتظار</div><div class="value amber" id="dispWait">00:00</div></div>
+        </div>
+
+        <div class="status-row">
+            <div class="status-item"><div class="status-led" id="ledGps"></div><span class="status-label">GPS</span></div>
+            <div class="status-item"><div class="status-led" id="ledMode"></div><span class="status-label">الوضع</span></div>
+            <div class="status-item"><div class="status-led" id="ledRun"></div><span class="status-label">الحالة</span></div>
+        </div>
+
+        <div class="ctrl-row">
+            <div style="text-align:center">
+                <button class="ctrl-btn go pulse" id="btnGo" onclick="startTrip()">▶</button>
+                <div class="ctrl-name">انطلاق</div>
+            </div>
+            <div style="text-align:center">
+                <button class="ctrl-btn hold" id="btnHold" onclick="holdTrip()" disabled>⏸</button>
+                <div class="ctrl-name">انتظار</div>
+            </div>
+            <div style="text-align:center">
+                <button class="ctrl-btn stop" id="btnStop" onclick="stopTrip()" disabled>⏹</button>
+                <div class="ctrl-name">توقف</div>
+            </div>
+            <div style="text-align:center">
+                <button class="ctrl-btn reset" id="btnReset" onclick="resetTrip()">↺</button>
+                <div class="ctrl-name">إعادة</div>
+            </div>
+        </div>
+
+        <div class="gps-panel" id="gpsPanel">
+            <div class="gps-title">
+                <span>🛰️ GPS</span>
+                <span class="gps-status" id="gpsStatusText">جاري التحديث...</span>
+            </div>
+            <div class="gps-bar">
+                <span class="sat-icon">📡</span>
+                <div class="sat-bars" id="satBars"></div>
+            </div>
+            <div class="gps-data">
+                <div>خط العرض: <span id="gpsLat">--</span></div>
+                <div>خط الطول: <span id="gpsLng">--</span></div>
+                <div>السرعة: <span id="gpsSpeed">0</span> كم/س</div>
+                <div>الدقة: <span id="gpsAcc">--</span> م</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings View -->
+    <div class="meter-view" id="settingsView">
+        <div style="margin-bottom:20px;">
+            <div class="official-seal">🏛️ تعريفة وزارة النقل (قابلة للتعديل)</div>
+        </div>
+        <div class="tariff-info" style="margin-bottom:20px;">
+            <div class="tariff-row"><span class="label">سعر الانطلاق (نهار)</span><span class="value" id="sStartDay">2.50</span></div>
+            <div class="tariff-row"><span class="label">سعر الكيلومتر (نهار)</span><span class="value" id="sKmDay">7.00</span></div>
+            <div class="tariff-row"><span class="label">سعر الدقيقة انتظار (نهار)</span><span class="value" id="sWaitDay">0.50</span></div>
+            <div class="tariff-row"><span class="label">سعر الانطلاق (ليل)</span><span class="value" id="sStartNight">3.75</span></div>
+            <div class="tariff-row"><span class="label">سعر الكيلومتر (ليل)</span><span class="value" id="sKmNight">10.50</span></div>
+            <div class="tariff-row"><span class="label">سعر الدقيقة انتظار (ليل)</span><span class="value" id="sWaitNight">0.75</span></div>
+        </div>
+        <div class="input-group">
+            <label>سعر الكيلومتر (نهار) - درهم</label>
+            <input type="number" id="inputKmDay" value="7.00" step="0.1">
+        </div>
+        <div class="input-group">
+            <label>سعر الانتظار (نهار) - درهم/دقيقة</label>
+            <input type="number" id="inputWaitDay" value="0.50" step="0.05">
+        </div>
+        <div class="input-group">
+            <label>سعر الكيلومتر (ليل) - درهم</label>
+            <input type="number" id="inputKmNight" value="10.50" step="0.1">
+        </div>
+        <button class="panel-btn" onclick="saveSettings()">💾 حفظ التعريفة</button>
+        <button class="panel-btn danger" onclick="resetSettings()" style="margin-top:8px;">↺ استعادة الافتراضي</button>
+    </div>
+
+    <!-- History View -->
+    <div class="meter-view" id="historyView">
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card"><div class="stat-value" id="statTrips">0</div><div class="stat-label">عدد الرحلات</div></div>
+            <div class="stat-card"><div class="stat-value" id="statEarnings">0.00</div><div class="stat-label">إجمالي الدخل</div></div>
+            <div class="stat-card"><div class="stat-value" id="statAvg">0.00</div><div class="stat-label">متوسط السعر</div></div>
+            <div class="stat-card"><div class="stat-value" id="statKm">0</div><div class="stat-label">إجمالي الكيلومترات</div></div>
+        </div>
+        <button class="panel-btn danger" onclick="clearHistory()" style="margin-bottom:16px;">🗑️ مسح السجل</button>
+        <div id="historyList"></div>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="summary-bar">
+        <div class="summary-item"><div class="summary-label">المجموع</div><div class="summary-value total" id="sumTotal">0.00</div></div>
+        <div class="summary-item"><div class="summary-label">المسافة</div><div class="summary-value" id="sumDist">0.0</div></div>
+        <div class="summary-item"><div class="summary-label">المدة</div><div class="summary-value" id="sumTime">00:00</div></div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <button class="bottom-btn active" onclick="switchTab('meter')"><span>📟</span>العداد</button>
+        <button class="bottom-btn" onclick="switchTab('settings')"><span>⚙️</span>الإعدادات</button>
+        <button class="bottom-btn" onclick="switchTab('history')"><span>📋</span>السجل</button>
+        <button class="bottom-btn" onclick="openCustomer()"><span>🧑</span>الزبون</button>
+    </div>
+
+    <!-- Receipt Page -->
+    <div class="receipt-page" id="receiptPage">
+        <div class="receipt-header">
+            <h2>🧾 إيصال الرحلة</h2>
+            <button class="receipt-close" onclick="closeReceipt()">✕</button>
+        </div>
+        <div class="receipt-price-box">
+            <div style="font-size:0.8rem;color:#2a6b2a;margin-bottom:8px;">المبلغ الإجمالي</div>
+            <div class="receipt-price" id="receiptPrice">0.00</div>
+            <div style="font-size:0.7rem;color:#2a6b2a;margin-top:8px;">درهم مغربي</div>
+        </div>
+        <div class="receipt-details" id="receiptDetails"></div>
+        <div class="receipt-actions">
+            <button class="save" onclick="saveReceipt()">💾 حفظ</button>
+            <button class="share" onclick="shareReceipt()">📤 مشاركة</button>
+            <button class="back" onclick="closeReceipt()">رجوع</button>
+        </div>
+    </div>
+
+    <!-- Customer Page -->
+    <div class="customer-page" id="customerPage">
+        <button class="customer-close" onclick="closeCustomer()">✕</button>
+        <div class="customer-header">
+            <h1>🧑‍✈️ عداد الأجرة</h1>
+            <div class="sub">المبلغ المستحق للرحلة الحالية</div>
+        </div>
+        <div class="customer-qr-box">
+            <canvas id="qrCanvas" width="200" height="200"></canvas>
+            <div class="customer-qr-hint">⏳ سيتم تحديث السعر تلقائياً</div>
+        </div>
+        <div class="customer-info">
+            <div class="customer-info-row"><span class="label">المبلغ</span><span class="value price" id="custPrice">0.00 درهم</span></div>
+            <div class="customer-info-row"><span class="label">المسافة</span><span class="value" id="custDist">0.0 كم</span></div>
+            <div class="customer-info-row"><span class="label">المدة</span><span class="value" id="custTime">00:00</span></div>
+            <div class="customer-info-row"><span class="label">الحالة</span><span class="value" id="custStatus">مستعد</span></div>
+        </div>
+        <div class="customer-footer">🚖 شكراً لاستخدامكم خدماتنا | TAXI.ma</div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================================
+        //  STATE & CONFIG
+        // ============================================================
+        const CITIES = [
+            { name: 'الدار البيضاء', code: 'CAS' },
+            { name: 'الرباط', code: 'RBA' },
+            { name: 'مراكش', code: 'MRK' },
+            { name: 'طنجة', code: 'TNG' },
+            { name: 'فاس', code: 'FES' },
+            { name: 'أكادير', code: 'AGA' },
+            { name: 'مكناس', code: 'MEK' },
+            { name: 'وجدة', code: 'OJD' },
+            { name: 'سلا', code: 'SAL' },
+            { name: 'القنيطرة', code: 'QNT' },
+            { name: 'تطوان', code: 'TET' },
+            { name: 'الناظور', code: 'NAD' },
+            { name: 'آسفي', code: 'SAF' },
+            { name: 'بن ملال', code: 'BML' },
+            { name: 'خريبكة', code: 'KHB' },
+            { name: 'الجديدة', code: 'JDI' }
+        ];
+
+        let config = {
+            startDay: 2.50,
+            kmDay: 7.00,
+            waitDay: 0.50,
+            startNight: 3.75,
+            kmNight: 10.50,
+            waitNight: 0.75,
+            currentCity: 'الدار البيضاء'
+        };
+
+        // Load config from localStorage
+        function loadConfig() {
+            try {
+                const saved = localStorage.getItem('taxiConfig');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(config, parsed);
+                }
+            } catch(e) {}
+        }
+        loadConfig();
+
+        let state = {
+            isRunning: false,
+            isHolding: false,
+            distance: 0, // km
+            waitTime: 0, // seconds
+            tripTime: 0, // seconds
+            price: 0,
+            startPrice: 0,
+            isNight: false,
+            lastPosition: null,
+            totalDistance: 0,
+            tripHistory: [],
+            gpsWatchId: null,
+            intervalId: null,
+            isSimulating: false
+        };
+
+        // Load history
+        function loadHistory() {
+            try {
+                const h = localStorage.getItem('taxiHistory');
+                if (h) state.tripHistory = JSON.parse(h);
+            } catch(e) { state.tripHistory = []; }
+        }
+        loadHistory();
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const $ = id => document.getElementById(id);
+        const lcdPrice = $('lcdPrice');
+        const dispDistance = $('dispDistance');
+        const dispTime = $('dispTime');
+        const dispWait = $('dispWait');
+        const sumTotal = $('sumTotal');
+        const sumDist = $('sumDist');
+        const sumTime = $('sumTime');
+        const btnGo = $('btnGo');
+        const btnHold = $('btnHold');
+        const btnStop = $('btnStop');
+        const waitBanner = $('waitBanner');
+        const ledGps = $('ledGps');
+        const ledMode = $('ledMode');
+        const ledRun = $('ledRun');
+        const gpsPanel = $('gpsPanel');
+        const gpsStatusText = $('gpsStatusText');
+        const satBars = $('satBars');
+        const gpsLat = $('gpsLat');
+        const gpsLng = $('gpsLng');
+        const gpsSpeed = $('gpsSpeed');
+        const gpsAcc = $('gpsAcc');
+        const currentCityName = $('currentCityName');
+        const modeBadge = $('modeBadge');
+        const cityList = $('cityList');
+        const citySearch = $('citySearch');
+        const gpsLoading = $('gpsLoading');
+
+        // ============================================================
+        //  CITY LOGIC
+        // ============================================================
+        function renderCities(filter = '') {
+            const f = filter.trim().toLowerCase();
+            const filtered = CITIES.filter(c => c.name.includes(f) || c.code.toLowerCase().includes(f));
+            cityList.innerHTML = filtered.map(c => `
+                <div class="city-item ${c.name === config.currentCity ? 'active' : ''}" onclick="selectCity('${c.name}')">
+                    <div class="city-name">${c.name}</div>
+                    <div class="city-code">${c.code}</div>
+                </div>
+            `).join('');
+        }
+        renderCities();
+
+        function filterCities() {
+            renderCities(citySearch.value);
+        }
+
+        function openCityModal() {
+            document.getElementById('cityModal').classList.add('show');
+            citySearch.value = '';
+            renderCities();
+        }
+
+        function closeCityModal() {
+            document.getElementById('cityModal').classList.remove('show');
+        }
+
+        function selectCity(name) {
+            config.currentCity = name;
+            currentCityName.textContent = name;
+            localStorage.setItem('taxiConfig', JSON.stringify(config));
+            closeCityModal();
+            showToast(`✅ تم التبديل إلى ${name}`);
+            renderCities();
+        }
+
+        // ============================================================
+        //  MODE (Day/Night/Auto)
+        // ============================================================
+        let modeState = 'auto'; // auto, day, night
+
+        function updateMode() {
+            const now = new Date();
+            const hours = now.getHours();
+            let isNight = false;
+            if (modeState === 'auto') {
+                isNight = (hours >= 20 || hours < 6);
+                modeBadge.textContent = isNight ? '🌙 ليلي (تلقائي)' : '☀️ نهاري (تلقائي)';
+                modeBadge.className = 'mode-badge auto';
+            } else if (modeState === 'night') {
+                isNight = true;
+                modeBadge.textContent = '🌙 ليلي (يدوي)';
+                modeBadge.className = 'mode-badge night';
+            } else {
+                isNight = false;
+                modeBadge.textContent = '☀️ نهاري (يدوي)';
+                modeBadge.className = 'mode-badge day';
+            }
+            state.isNight = isNight;
+            // LED
+            ledMode.className = 'status-led';
+            if (isNight) {
+                ledMode.classList.add('on-amber');
+            } else {
+                ledMode.classList.add('on-green');
+            }
+            // Update price if running
+            if (state.isRunning || state.isHolding) {
+                calculateAndUpdatePrice();
+            }
+        }
+
+        function toggleMode() {
+            if (modeState === 'auto') modeState = 'day';
+            else if (modeState === 'day') modeState = 'night';
+            else if (modeState === 'night') modeState = 'auto';
+            updateMode();
+            showToast(`🔄 الوضع: ${modeState === 'auto' ? 'تلقائي' : modeState === 'day' ? 'نهاري' : 'ليلي'}`);
+        }
+
+        // ============================================================
+        //  GPS
+        // ============================================================
+        let gpsActive = false;
+        let gpsSimulated = false;
+        let lastSimulatedCoords = { lat: 33.5731, lng: -7.5898 }; // Casablanca
+
+        function initGPS() {
+            if (!navigator.geolocation) {
+                gpsStatusText.textContent = '❌ غير مدعوم';
+                showToast('❌ جهازك لا يدعم GPS، سيتم استخدام المحاكاة');
+                startSimulatedGPS();
+                return;
+            }
+            gpsLoading.classList.add('show');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    gpsLoading.classList.remove('show');
+                    gpsActive = true;
+                    gpsSimulated = false;
+                    ledGps.className = 'status-led on-green';
+                    gpsStatusText.textContent = '✅ متصل';
+                    gpsStatusText.className = 'gps-status accurate';
+                    gpsPanel.classList.add('show');
+                    updateGPSPosition(pos.coords);
+                    // Watch
+                    if (state.gpsWatchId) navigator.geolocation.clearWatch(state.gpsWatchId);
+                    state.gpsWatchId = navigator.geolocation.watchPosition(
+                        (p) => updateGPSPosition(p.coords),
+                        (err) => { console.warn('GPS watch error', err); },
+                        { enableHighAccuracy: true, maximumAge: 1000, timeout: 5000 }
+                    );
+                    showToast('📍 تم تفعيل GPS');
+                },
+                (err) => {
+                    gpsLoading.classList.remove('show');
+                    console.warn('GPS error:', err);
+                    gpsStatusText.textContent = '⚠️ غير متاح (محاكاة)';
+                    gpsStatusText.className = 'gps-status poor';
+                    ledGps.className = 'status-led on-amber';
+                    startSimulatedGPS();
+                    showToast('⚠️ جاري استخدام المحاكاة بدلاً من GPS');
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function startSimulatedGPS() {
+            gpsSimulated = true;
+            gpsActive = true;
+            ledGps.className = 'status-led on-amber';
+            gpsPanel.classList.add('show');
+            gpsStatusText.textContent = '🔮 محاكاة';
+            gpsStatusText.className = 'gps-status poor';
+            // Initial coords
+            updateGPSDisplay(lastSimulatedCoords.lat, lastSimulatedCoords.lng, 0, 15);
+            // Simulate movement if running
+            setInterval(() => {
+                if (state.isRunning && !state.isHolding) {
+                    // Random walk for simulation
+                    lastSimulatedCoords.lat += (Math.random() - 0.5) * 0.0005;
+                    lastSimulatedCoords.lng += (Math.random() - 0.5) * 0.0005;
+                    updateGPSDisplay(lastSimulatedCoords.lat, lastSimulatedCoords.lng, 30 + Math.random()*20, 12);
+                }
+            }, 3000);
+        }
+
+        function updateGPSPosition(coords) {
+            const lat = coords.latitude;
+            const lng = coords.longitude;
+            const speed = coords.speed ? coords.speed * 3.6 : 0; // m/s to km/h
+            const acc = coords.accuracy || 10;
+            updateGPSDisplay(lat, lng, speed, acc);
+            // Distance tracking
+            if (state.isRunning && !state.isHolding) {
+                if (state.lastPosition) {
+                    const d = haversine(state.lastPosition.lat, state.lastPosition.lng, lat, lng);
+                    if (d > 0.001) { // ignore noise
+                        state.distance += d;
+                        state.totalDistance += d;
+                        calculateAndUpdatePrice();
+                        updateDisplay();
+                    }
+                }
+                state.lastPosition = { lat, lng };
+            } else {
+                state.lastPosition = { lat, lng };
+            }
+        }
+
+        function updateGPSDisplay(lat, lng, speed, acc) {
+            gpsLat.textContent = lat.toFixed(6);
+            gpsLng.textContent = lng.toFixed(6);
+            gpsSpeed.textContent = Math.round(speed);
+            gpsAcc.textContent = Math.round(acc);
+            // Bars
+            const bars = satBars.querySelectorAll('.sat-bar');
+            const count = Math.min(8, Math.floor(acc / 5) + 1);
+            bars.forEach((bar, i) => {
+                if (i < count) bar.classList.add('fill');
+                else bar.classList.remove('fill');
+            });
+        }
+
+        function haversine(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function skipGPS() {
+            gpsLoading.classList.remove('show');
+            startSimulatedGPS();
+        }
+
+        // Build sat bars
+        for (let i=0; i<8; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'sat-bar';
+            satBars.appendChild(bar);
+        }
+
+        // ============================================================
+        //  PRICE CALCULATION (Moroccan Tariff)
+        // ============================================================
+        function calculateAndUpdatePrice() {
+            const isNight = state.isNight;
+            let kmPrice = isNight ? config.kmNight : config.kmDay;
+            let waitPrice = isNight ? config.waitNight : config.waitDay;
+            let startPrice = isNight ? config.startNight : config.startDay;
+
+            // Ensure we have the start price stored when trip started
+            if (!state.startPrice && state.isRunning) {
+                state.startPrice = startPrice;
+            }
+
+            let total = state.startPrice || startPrice;
+            total += state.distance * kmPrice;
+            total += (state.waitTime / 60) * waitPrice;
+            state.price = total;
+
+            // Update LCD with animation
+            const currentVal = parseFloat(lcdPrice.textContent);
+            if (Math.abs(currentVal - total) > 0.01) {
+                lcdPrice.classList.remove('tick');
+                void lcdPrice.offsetWidth;
+                lcdPrice.classList.add('tick');
+            }
+            lcdPrice.textContent = total.toFixed(2);
+            sumTotal.textContent = total.toFixed(2);
+
+            // Update customer page if open
+            if (document.getElementById('customerPage').classList.contains('show')) {
+                $('custPrice').textContent = total.toFixed(2) + ' درهم';
+            }
+            return total;
+        }
+
+        function updateDisplay() {
+            dispDistance.textContent = state.distance.toFixed(1);
+            sumDist.textContent = state.distance.toFixed(1);
+
+            const fmt = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+            };
+            dispTime.textContent = fmt(state.tripTime);
+            sumTime.textContent = fmt(state.tripTime);
+            dispWait.textContent = fmt(state.waitTime);
+
+            // Update customer
+            if (document.getElementById('customerPage').classList.contains('show')) {
+                $('custDist').textContent = state.distance.toFixed(1) + ' كم';
+                $('custTime').textContent = fmt(state.tripTime);
+                $('custStatus').textContent = state.isRunning ? (state.isHolding ? '⏸ في الانتظار' : '🚖 في الطريق') : '⏹ متوقف';
+            }
+        }
+
+        // ============================================================
+        //  TRIP CONTROLS
+        // ============================================================
+        function startTrip() {
+            if (state.isRunning) return;
+            state.isRunning = true;
+            state.isHolding = false;
+            state.distance = 0;
+            state.waitTime = 0;
+            state.tripTime = 0;
+            state.startPrice = state.isNight ? config.startNight : config.startDay;
+            state.price = state.startPrice;
+            state.lastPosition = null;
+            state.totalDistance = 0;
+
+            lcdPrice.textContent = state.price.toFixed(2);
+            updateDisplay();
+
+            btnGo.disabled = true;
+            btnGo.classList.remove('pulse');
+            btnHold.disabled = false;
+            btnStop.disabled = false;
+            waitBanner.classList.remove('show');
+            ledRun.className = 'status-led on-green';
+            document.getElementById('ledRun').classList.add('on-green');
+
+            // Start intervals
+            if (state.intervalId) clearInterval(state.intervalId);
+            state.intervalId = setInterval(() => {
+                if (state.isRunning) {
+                    state.tripTime++;
+                    if (state.isHolding) {
+                        state.waitTime++;
+                    }
+                    // Simulate distance if no GPS and not holding
+                    if (!gpsActive || gpsSimulated) {
+                        if (!state.isHolding) {
+                            // Simulate 30-60 km/h
+                            const speed = 40 + Math.random() * 20; // km/h
+                            const d = speed / 3600; // km per second
+                            state.distance += d;
+                            state.totalDistance += d;
+                        }
+                    }
+                    calculateAndUpdatePrice();
+                    updateDisplay();
+                }
+            }, 1000);
+
+            showToast('🚖 انطلاقة!');
+        }
+
+        function holdTrip() {
+            if (!state.isRunning) return;
+            state.isHolding = !state.isHolding;
+            if (state.isHolding) {
+                btnHold.classList.add('active');
+                btnHold.textContent = '▶';
+                waitBanner.classList.add('show');
+                ledRun.className = 'status-led on-amber';
+                showToast('⏸ وضع الانتظار مفعل');
+            } else {
+                btnHold.classList.remove('active');
+                btnHold.textContent = '⏸';
+                waitBanner.classList.remove('show');
+                ledRun.className = 'status-led on-green';
+                showToast('▶ استئناف الرحلة');
+            }
+        }
+
+        function stopTrip() {
+            if (!state.isRunning) return;
+            state.isRunning = false;
+            state.isHolding = false;
+            btnHold.classList.remove('active');
+            btnHold.textContent = '⏸';
+            waitBanner.classList.remove('show');
+            ledRun.className = 'status-led';
+
+            if (state.intervalId) {
+                clearInterval(state.intervalId);
+                state.intervalId = null;
+            }
+
+            const finalPrice = state.price;
+            const finalDist = state.distance;
+            const finalTime = state.tripTime;
+            const finalWait = state.waitTime;
+
+            // Save to history
+            const record = {
+                id: Date.now(),
+                date: new Date().toLocaleString('ar-MA'),
+                city: config.currentCity,
+                distance: finalDist,
+                time: finalTime,
+                wait: finalWait,
+                price: finalPrice,
+                isNight: state.isNight,
+                tariff: {
+                    km: state.isNight ? config.kmNight : config.kmDay,
+                    wait: state.isNight ? config.waitNight : config.waitDay,
+                    start: state.startPrice
+                }
+            };
+            state.tripHistory.unshift(record);
+            localStorage.setItem('taxiHistory', JSON.stringify(state.tripHistory));
+
+            // Show receipt
+            showReceipt(record);
+
+            // Reset controls
+            btnGo.disabled = false;
+            btnGo.classList.add('pulse');
+            btnHold.disabled = true;
+            btnStop.disabled = true;
+            btnHold.textContent = '⏸';
+            btnHold.classList.remove('active');
+
+            // Update history tab dot
+            $('historyDot').classList.add('on');
+
+            showToast('🛑 تم إنهاء الرحلة');
+        }
+
+        function resetTrip() {
+            if (state.isRunning) {
+                if (!confirm('هل تريد إنهاء الرحلة الحالية وإعادة الضبط؟')) return;
+                if (state.intervalId) clearInterval(state.intervalId);
+                state.isRunning = false;
+            }
+            state.isHolding = false;
+            state.distance = 0;
+            state.waitTime = 0;
+            state.tripTime = 0;
+            state.price = 0;
+            state.startPrice = 0;
+            state.totalDistance = 0;
+            lcdPrice.textContent = '0.00';
+            sumTotal.textContent = '0.00';
+            updateDisplay();
+            btnGo.disabled = false;
+            btnGo.classList.add('pulse');
+            btnHold.disabled = true;
+            btnStop.disabled = true;
+            btnHold.textContent = '⏸';
+            btnHold.classList.remove('active');
+            waitBanner.classList.remove('show');
+            ledRun.className = 'status-led';
+            showToast('🔄 تمت إعادة الضبط');
+        }
+
+        // ============================================================
+        //  RECEIPT
+        // ============================================================
+        function showReceipt(record) {
+            const page = document.getElementById('receiptPage');
+            page.classList.add('show');
+            $('receiptPrice').textContent = record.price.toFixed(2);
+            const d = document.getElementById('receiptDetails');
+            const fmt = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+            };
+            d.innerHTML = `
+                <div class="receipt-row"><span class="label">المدينة</span><span class="value">${record.city}</span></div>
+                <div class="receipt-row"><span class="label">التاريخ</span><span class="value">${record.date}</span></div>
+                <div class="receipt-row"><span class="label">الوقت (ليلي)</span><span class="value">${record.isNight ? '🌙 نعم' : '☀️ لا'}</span></div>
+                <div class="receipt-row"><span class="label">المسافة</span><span class="value">${record.distance.toFixed(1)} كم</span></div>
+                <div class="receipt-row"><span class="label">مدة الرحلة</span><span class="value">${fmt(record.time)}</span></div>
+                <div class="receipt-row"><span class="label">مدة الانتظار</span><span class="value">${fmt(record.wait)}</span></div>
+                <div class="receipt-row"><span class="label">سعر الكيلومتر</span><span class="value">${record.tariff.km.toFixed(2)} درهم</span></div>
+                <div class="receipt-row"><span class="label">سعر الانتظار/د</span><span class="value">${record.tariff.wait.toFixed(2)} درهم</span></div>
+                <div class="receipt-row"><span class="label">رسوم الانطلاق</span><span class="value">${record.tariff.start.toFixed(2)} درهم</span></div>
+                <div class="receipt-row" style="border-bottom:none;border-top:2px solid #00c853;margin-top:4px;padding-top:12px;">
+                    <span class="label" style="font-weight:700;color:#00c853;">المبلغ الإجمالي</span>
+                    <span class="value" style="font-weight:900;color:#00ff41;font-size:1.2rem;">${record.price.toFixed(2)} درهم</span>
+                </div>
+            `;
+        }
+
+        function closeReceipt() {
+            document.getElementById('receiptPage').classList.remove('show');
+        }
+
+        function saveReceipt() {
+            const price = $('receiptPrice').textContent;
+            // Simple download as text
+            const text = `إيصال الرحلة\nالمبلغ: ${price} درهم\nالتاريخ: ${new Date().toLocaleString('ar-MA')}\nشكراً لاستخدامكم خدماتنا.`;
+            const blob = new Blob([text], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `receipt_${Date.now()}.txt`;
+            a.click();
+            showToast('💾 تم حفظ الإيصال');
+        }
+
+        function shareReceipt() {
+            const price = $('receiptPrice').textContent;
+            const text = `🧾 إيصال الرحلة\nالمبلغ: ${price} درهم\nشكراً لاستخدامكم خدمات TAXI.ma`;
+            if (navigator.share) {
+                navigator.share({ title: 'إيصال الرحلة', text: text }).catch(()=>{});
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('📋 تم نسخ الإيصال للحافظة');
+                });
+            }
+        }
+
+        // ============================================================
+        //  CUSTOMER PAGE
+        // ============================================================
+        function openCustomer() {
+            document.getElementById('customerPage').classList.add('show');
+            $('custPrice').textContent = state.price.toFixed(2) + ' درهم';
+            $('custDist').textContent = state.distance.toFixed(1) + ' كم';
+            const fmt = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+            };
+            $('custTime').textContent = fmt(state.tripTime);
+            $('custStatus').textContent = state.isRunning ? (state.isHolding ? '⏸ في الانتظار' : '🚖 في الطريق') : '⏹ متوقف';
+            // Draw QR (simple placeholder)
+            const canvas = document.getElementById('qrCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 200, 200);
+            ctx.fillStyle = '#00c853';
+            ctx.font = 'bold 40px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🚖', 100, 80);
+            ctx.font = '20px sans-serif';
+            ctx.fillText('TAXI.ma', 100, 140);
+            ctx.font = '14px sans-serif';
+            ctx.fillStyle = '#000';
+            ctx.fillText('رحلة رقم: ' + Date.now().toString().slice(-6), 100, 180);
+        }
+
+        function closeCustomer() {
+            document.getElementById('customerPage').classList.remove('show');
+        }
+
+        // ============================================================
+        //  TABS
+        // ============================================================
+        function switchTab(tab) {
+            document.querySelectorAll('.meter-view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.bottom-btn').forEach(b => b.classList.remove('active'));
+
+            if (tab === 'meter') {
+                document.getElementById('meterView').classList.add('active');
+                document.querySelector('.tab[data-tab="meter"]').classList.add('active');
+                document.querySelector('.bottom-btn:nth-child(1)').classList.add('active');
+            } else if (tab === 'settings') {
+                document.getElementById('settingsView').classList.add('active');
+                document.querySelector('.tab[data-tab="settings"]').classList.add('active');
+                document.querySelector('.bottom-btn:nth-child(2)').classList.add('active');
+                // Load current values into inputs
+                $('inputKmDay').value = config.kmDay;
+                $('inputWaitDay').value = config.waitDay;
+                $('inputKmNight').value = config.kmNight;
+                updateSettingsDisplay();
+            } else if (tab === 'history') {
+                document.getElementById('historyView').classList.add('active');
+                document.querySelector('.tab[data-tab="history"]').classList.add('active');
+                document.querySelector('.bottom-btn:nth-child(3)').classList.add('active');
+                renderHistory();
+                $('historyDot').classList.remove('on');
+            }
+        }
+
+        // ============================================================
+        //  SETTINGS
+        // ============================================================
+        function updateSettingsDisplay() {
+            $('sStartDay').textContent = config.startDay.toFixed(2);
+            $('sKmDay').textContent = config.kmDay.toFixed(2);
+            $('sWaitDay').textContent = config.waitDay.toFixed(2);
+            $('sStartNight').textContent = config.startNight.toFixed(2);
+            $('sKmNight').textContent = config.kmNight.toFixed(2);
+            $('sWaitNight').textContent = config.waitNight.toFixed(2);
+        }
+
+        function saveSettings() {
+            const kmDay = parseFloat($('inputKmDay').value);
+            const waitDay = parseFloat($('inputWaitDay').value);
+            const kmNight = parseFloat($('inputKmNight').value);
+            if (isNaN(kmDay) || isNaN(waitDay) || isNaN(kmNight)) {
+                showToast('❌ يرجى إدخال أرقام صحيحة');
+                return;
+            }
+            config.kmDay = kmDay;
+            config.waitDay = waitDay;
+            config.kmNight = kmNight;
+            // Auto calculate night start (50% more)
+            config.startDay = 2.50;
+            config.startNight = 3.75;
+            // If user wants to keep night start proportional
+            config.startNight = config.startDay * 1.5;
+            // Update display
+            updateSettingsDisplay();
+            localStorage.setItem('taxiConfig', JSON.stringify(config));
+            showToast('✅ تم حفظ التعريفة');
+            if (state.isRunning) calculateAndUpdatePrice();
+        }
+
+        function resetSettings() {
+            config.kmDay = 7.00;
+            config.waitDay = 0.50;
+            config.kmNight = 10.50;
+            config.startDay = 2.50;
+            config.startNight = 3.75;
+            $('inputKmDay').value = config.kmDay;
+            $('inputWaitDay').value = config.waitDay;
+            $('inputKmNight').value = config.kmNight;
+            updateSettingsDisplay();
+            localStorage.setItem('taxiConfig', JSON.stringify(config));
+            showToast('↺ تم استعادة التعريفة الافتراضية');
+            if (state.isRunning) calculateAndUpdatePrice();
+        }
+
+        // ============================================================
+        //  HISTORY
+        // ============================================================
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            if (state.tripHistory.length === 0) {
+                list.innerHTML = '<div class="empty-state">📭 لا توجد رحلات مسجلة</div>';
+                $('statTrips').textContent = '0';
+                $('statEarnings').textContent = '0.00';
+                $('statAvg').textContent = '0.00';
+                $('statKm').textContent = '0';
+                return;
+            }
+            let totalEarnings = 0;
+            let totalKm = 0;
+            state.tripHistory.forEach(r => {
+                totalEarnings += r.price;
+                totalKm += r.distance;
+            });
+            $('statTrips').textContent = state.tripHistory.length;
+            $('statEarnings').textContent = totalEarnings.toFixed(2);
+            $('statAvg').textContent = (totalEarnings / state.tripHistory.length).toFixed(2);
+            $('statKm').textContent = totalKm.toFixed(1);
+
+            const fmt = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+            };
+            list.innerHTML = state.tripHistory.map(r => `
+                <div class="history-item">
+                    <div class="history-info">
+                        <div class="history-date">${r.date} | ${r.city} ${r.isNight ? '🌙' : '☀️'}</div>
+                        <div class="history-route">${r.distance.toFixed(1)} كم | ${fmt(r.time)} | انتظار ${fmt(r.wait)}</div>
+                    </div>
+                    <div class="history-amount">${r.price.toFixed(2)} درهم</div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (state.tripHistory.length === 0) return;
+            if (confirm('هل تريد مسح سجل الرحلات بالكامل؟')) {
+                state.tripHistory = [];
+                localStorage.setItem('taxiHistory', JSON.stringify(state.tripHistory));
+                renderHistory();
+                showToast('🗑️ تم مسح السجل');
+            }
+        }
+
+        // ============================================================
+        //  TOAST
+        // ============================================================
+        let toastTimeout;
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        function init() {
+            currentCityName.textContent = config.currentCity;
+            updateMode();
+            updateSettingsDisplay();
+            // Set initial price
+            lcdPrice.textContent = '0.00';
+            sumTotal.textContent = '0.00';
+            updateDisplay();
+            // Start GPS
+            initGPS();
+            // Render history
+            renderHistory();
+            // Check if history has items
+            if (state.tripHistory.length > 0) {
+                $('historyDot').classList.add('on');
+            }
+            // Close city modal on click outside (but we handle via overlay)
+            document.getElementById('cityModal').addEventListener('click', function(e) {
+                if (e.target === this) closeCityModal();
+            });
+        }
+
+        // Fix for hold button text
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Export to global for inline onclick
+        window.startTrip = startTrip;
+        window.holdTrip = holdTrip;
+        window.stopTrip = stopTrip;
+        window.resetTrip = resetTrip;
+        window.switchTab = switchTab;
+        window.openCustomer = openCustomer;
+        window.closeCustomer = closeCustomer;
+        window.closeReceipt = closeReceipt;
+        window.saveReceipt = saveReceipt;
+        window.shareReceipt = shareReceipt;
+        window.openCityModal = openCityModal;
+        window.closeCityModal = closeCityModal;
+        window.selectCity = selectCity;
+        window.filterCities = filterCities;
+        window.toggleMode = toggleMode;
+        window.saveSettings = saveSettings;
+        window.resetSettings = resetSettings;
+        window.clearHistory = clearHistory;
+        window.skipGPS = skipGPS;
+    </script>
+</body>
+</html>
