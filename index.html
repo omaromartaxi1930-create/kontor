@@ -6,363 +6,185 @@
 <title>عداد التاكسي</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-body { 
-  font-family: 'Segoe UI', Tahoma, sans-serif; 
-  background: #1a1a1a; 
-  color: #fff; 
-  overflow: hidden;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0a0a; color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+.header { background: #000; padding: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--meter-color, #00c853); }
+.city-name { font-size: 1.2rem; font-weight: 700; color: var(--meter-color, #00c853); }
+.mode-badge { padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; background: var(--meter-color, #00c853); color: #000; }
+.tabs { display: flex; background: #111; border-bottom: 1px solid #222; }
+.tab { flex: 1; padding: 12px; text-align: center; background: transparent; border: none; color: #666; font-size: 0.9rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; }
+.tab.active[data-color="green"] { color: #00c853; border-bottom-color: #00c853; background: #00c85311; }
+.tab.active[data-color="blue"] { color: #00bcd4; border-bottom-color: #00bcd4; background: #00bcd411; }
+.tab.active[data-color="orange"] { color: #ff9800; border-bottom-color: #ff9800; background: #ff980011; }
 
-/* Header */
-.header {
-  background: #0a0a0a;
-  padding: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #00c853;
-}
-.city-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #00c853;
-}
-.mode-indicator {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-.mode-day { background: #ffab00; color: #000; }
-.mode-night { background: #00c853; color: #000; }
+.meter-container { flex: 1; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
+.meter-container.active { display: flex; }
+.meter-container[data-color="green"] { --meter-color: #00c853; --meter-color-light: #00ff41; --meter-color-dark: #00a344; --meter-glow: rgba(0, 200, 83, 0.4); --meter-glow-strong: rgba(0, 255, 65, 0.5); }
+.meter-container[data-color="blue"] { --meter-color: #00bcd4; --meter-color-light: #00e5ff; --meter-color-dark: #0097a7; --meter-glow: rgba(0, 188, 212, 0.4); --meter-glow-strong: rgba(0, 229, 255, 0.5); }
+.meter-container[data-color="orange"] { --meter-color: #ff9800; --meter-color-light: #ffb74d; --meter-color-dark: #e65100; --meter-glow: rgba(255, 152, 0, 0.4); --meter-glow-strong: rgba(255, 183, 77, 0.5); }
 
-/* Tabs */
-.tabs {
-  display: flex;
-  background: #0a0a0a;
-  border-bottom: 1px solid #333;
-}
-.tab {
-  flex: 1;
-  padding: 12px;
-  text-align: center;
-  background: transparent;
-  border: none;
-  color: #666;
-  font-size: 0.9rem;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-}
-.tab.active {
-  color: #00c853;
-  border-bottom-color: #00c853;
-}
+.price-display { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.price-box { background: #000; border: 4px solid var(--meter-color); border-radius: 20px; padding: 30px 16px; text-align: center; box-shadow: 0 0 40px var(--meter-glow); }
+.price-value, .speed-value { font-size: 3.5rem; font-weight: 900; color: var(--meter-color-light); font-family: 'Courier New', monospace; line-height: 1; text-shadow: 0 0 20px var(--meter-glow-strong); }
+.price-currency, .speed-unit { font-size: 0.9rem; color: var(--meter-color); margin-top: 8px; font-weight: 600; }
 
-/* Meter Display */
-.meter-container {
-  flex: 1;
-  display: none;
-  flex-direction: column;
-  padding: 16px;
-}
-.meter-container.active {
-  display: flex;
-}
-
-.price-display {
-  background: #000;
-  border: 3px solid #00c853;
+/* بانر الانتظار المحسّن */
+.auto-wait-banner {
+  background: linear-gradient(135deg, #ffab0033, #ff6f0033);
+  border: 3px solid #ffab00;
   border-radius: 16px;
-  padding: 40px 20px;
-  text-align: center;
-  margin-bottom: 20px;
-  box-shadow: 0 0 30px rgba(0, 200, 83, 0.3);
-}
-.price-value {
-  font-size: 5rem;
-  font-weight: 900;
-  color: #00ff41;
-  font-family: 'Courier New', monospace;
-  line-height: 1;
-}
-.price-currency {
-  font-size: 1rem;
-  color: #00c853;
-  margin-top: 8px;
-}
-
-.info-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-.info-box {
-  background: #2a2a2a;
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-}
-.info-label {
-  font-size: 0.7rem;
-  color: #888;
-  margin-bottom: 6px;
-}
-.info-value {
-  font-size: 1.4rem;
-  font-weight: 700;
-  font-family: 'Courier New', monospace;
-  color: #00c853;
-}
-
-/* Control Buttons */
-.controls {
-  display: flex;
-  justify-content: space-around;
-  gap: 12px;
-  margin-top: auto;
-  padding: 20px 0;
-}
-.ctrl-btn {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.ctrl-btn:active {
-  transform: scale(0.9);
-}
-.ctrl-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-.btn-start {
-  background: #00c853;
-  color: #000;
-  box-shadow: 0 4px 20px rgba(0, 200, 83, 0.4);
-}
-.btn-wait {
-  background: #ffab00;
-  color: #000;
-}
-.btn-stop {
-  background: #ff4444;
-  color: #fff;
-}
-.btn-reset {
-  background: #555;
-  color: #aaa;
-}
-
-/* Bottom Bar */
-.bottom-bar {
-  display: flex;
-  background: #0a0a0a;
-  border-top: 1px solid #333;
-}
-.bottom-btn {
-  flex: 1;
-  padding: 14px;
-  background: transparent;
-  border: none;
-  color: #666;
-  font-size: 0.75rem;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.bottom-btn span {
-  font-size: 1.3rem;
-}
-.bottom-btn:active {
-  background: #1a1a1a;
-}
-
-/* Modal */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.95);
-  z-index: 1000;
-  display: none;
-  flex-direction: column;
-  padding: 20px;
-  overflow-y: auto;
-}
-.modal.show {
-  display: flex;
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 0;
-  border-bottom: 1px solid #333;
-  margin-bottom: 20px;
-}
-.modal-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #00c853;
-}
-.modal-close {
-  background: none;
-  border: none;
-  color: #ff4444;
-  font-size: 1.8rem;
-  cursor: pointer;
-}
-
-/* Settings */
-.setting-group {
-  background: #2a2a2a;
-  border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
+  text-align: center;
+  display: none;
+  animation: pulse 1s infinite;
 }
-.setting-title {
-  font-size: 0.9rem;
-  color: #00c853;
-  margin-bottom: 12px;
-  font-weight: 700;
+.auto-wait-banner.show { display: block; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 10px #ffab0066; transform: scale(1); }
+  50% { box-shadow: 0 0 30px #ffab00aa; transform: scale(1.02); }
 }
-.setting-row {
+.wait-title { font-size: 1.1rem; color: #ffab00; font-weight: 700; margin-bottom: 12px; }
+.wait-counter {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #3a3a3a;
-}
-.setting-row:last-child {
-  border-bottom: none;
-}
-.setting-label {
-  font-size: 0.85rem;
-  color: #aaa;
-}
-.setting-input {
-  width: 100px;
-  background: #1a1a1a;
-  border: 1px solid #444;
-  color: #fff;
-  padding: 8px;
-  border-radius: 6px;
-  text-align: center;
-  font-size: 1rem;
-  font-family: 'Courier New', monospace;
-}
-.setting-input:focus {
-  outline: none;
-  border-color: #00c853;
-}
-.save-btn {
-  width: 100%;
-  background: #00c853;
-  color: #000;
-  border: none;
-  padding: 16px;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 12px;
-}
-
-/* City Selector */
-.city-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  justify-content: space-around;
   gap: 10px;
+  margin-bottom: 12px;
 }
-.city-item {
-  background: #2a2a2a;
-  border: 2px solid #3a3a3a;
+.wait-counter-item {
+  flex: 1;
+  background: #00000066;
   border-radius: 10px;
-  padding: 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
+  padding: 10px 8px;
 }
-.city-item:active, .city-item.selected {
-  border-color: #00c853;
-  background: #00c85322;
+.wait-counter-label { font-size: 0.7rem; color: #ffab00; opacity: 0.9; margin-bottom: 4px; }
+.wait-counter-value { font-size: 1.5rem; color: #fff; font-weight: 900; font-family: 'Courier New', monospace; }
+.wait-counter-value.cost { color: #ffab00; font-size: 1.8rem; }
+.wait-progress {
+  height: 6px;
+  background: #00000066;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
 }
-.city-item-name {
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-.city-item-code {
-  font-size: 0.7rem;
-  color: #666;
+.wait-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ffab00, #ff6f00);
+  width: 0%;
+  transition: width 1s linear;
 }
 
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%) translateY(100px);
-  background: #00c853;
-  color: #000;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 700;
-  z-index: 2000;
-  opacity: 0;
-  transition: all 0.3s;
-}
-.toast.show {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
-}
+.info-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.info-box { background: #0a0a0a; border: 2px solid var(--meter-color); border-radius: 12px; padding: 18px 12px; text-align: center; }
+.info-label { font-size: 0.75rem; color: var(--meter-color); margin-bottom: 8px; font-weight: 600; opacity: 0.8; }
+.info-value { font-size: 1.6rem; font-weight: 700; font-family: 'Courier New', monospace; color: var(--meter-color-light); }
+
+.controls { display: flex; justify-content: space-around; gap: 16px; margin-top: auto; padding: 20px 0; }
+.ctrl-btn { width: 85px; height: 85px; border-radius: 50%; border: none; font-size: 2.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--meter-color); color: #000; box-shadow: 0 4px 25px var(--meter-glow); font-weight: 700; }
+.ctrl-btn:active { transform: scale(0.9); }
+.ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
+.ctrl-btn.btn-wait { background: var(--meter-color-dark); color: #fff; }
+.ctrl-btn.btn-reset { opacity: 0.7; }
+
+.bottom-bar { display: flex; background: #000; border-top: 2px solid #222; flex-shrink: 0; }
+.bottom-btn { flex: 1; padding: 12px 4px; background: transparent; border: none; color: #666; font-size: 0.7rem; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bottom-btn span { font-size: 1.3rem; }
+
+.modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.97); z-index: 1000; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
+.modal.show { display: flex; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 2px solid #00c853; margin-bottom: 24px; }
+.modal-title { font-size: 1.3rem; font-weight: 700; color: #00c853; }
+.modal-close { background: none; border: none; color: #ff4444; font-size: 2rem; cursor: pointer; }
+
+.search-input { width: 100%; background: #1a1a1a; border: 2px solid #333; color: #fff; padding: 12px; border-radius: 10px; font-size: 1rem; margin-bottom: 16px; outline: none; }
+.search-input:focus { border-color: #00c853; }
+
+.setting-group { background: #1a1a1a; border: 1px solid #333; border-radius: 14px; padding: 18px; margin-bottom: 18px; }
+.setting-title { font-size: 1rem; color: #00c853; margin-bottom: 14px; font-weight: 700; border-bottom: 1px solid #333; padding-bottom: 8px; }
+.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #2a2a2a; }
+.setting-row:last-child { border-bottom: none; }
+.setting-label { font-size: 0.9rem; color: #aaa; font-weight: 600; }
+.setting-input { width: 110px; background: #0a0a0a; border: 2px solid #333; color: #00ff41; padding: 10px; border-radius: 8px; text-align: center; font-size: 1.1rem; font-family: 'Courier New', monospace; font-weight: 700; }
+.setting-input:focus { outline: none; border-color: #00c853; }
+.save-btn { width: 100%; background: #00c853; color: #000; border: none; padding: 18px; border-radius: 14px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 16px; }
+
+.city-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.city-item { background: #1a1a1a; border: 2px solid #333; border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; }
+.city-item.selected { border-color: #00c853; background: #00c85322; }
+.city-item-name { font-size: 1rem; font-weight: 700; }
+
+.radio-stations { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.station-item { background: #1a1a1a; border: 2px solid #333; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+.station-item.playing { border-color: #00c853; background: #00c85322; }
+.station-item.error { border-color: #ff4444; opacity: 0.6; }
+.station-icon { width: 48px; height: 48px; border-radius: 10px; background: #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+.station-info { flex: 1; min-width: 0; }
+.station-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 3px; }
+.station-desc { font-size: 0.7rem; color: #888; }
+.station-status { font-size: 0.65rem; margin-top: 3px; font-weight: 700; }
+.station-status.ok { color: #00c853; }
+.station-status.error { color: #ff4444; }
+.station-play { width: 42px; height: 42px; border-radius: 50%; background: #00c853; color: #000; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; }
+.station-item.playing .station-play { background: #ff4444; color: #fff; }
+
+.custom-station { background: #0d1f0d; border: 2px dashed #00c853; border-radius: 12px; padding: 14px; margin-top: 16px; }
+.custom-station-title { color: #00c853; font-weight: 700; margin-bottom: 10px; font-size: 0.9rem; }
+.custom-input { width: 100%; background: #0a0a0a; border: 2px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 8px; outline: none; }
+.custom-input:focus { border-color: #00c853; }
+.custom-btn { width: 100%; background: #00c853; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+.radio-player { position: fixed; bottom: 70px; left: 0; right: 0; background: linear-gradient(90deg, #00c853, #00a344); padding: 10px 16px; display: none; align-items: center; gap: 12px; z-index: 500; box-shadow: 0 -4px 20px rgba(0, 200, 83, 0.4); }
+.radio-player.show { display: flex; }
+.radio-player-icon { font-size: 1.5rem; animation: radioSpin 3s linear infinite; }
+@keyframes radioSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.radio-player-info { flex: 1; color: #000; min-width: 0; }
+.radio-player-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.radio-player-status { font-size: 0.7rem; opacity: 0.8; }
+.radio-player-btn { width: 40px; height: 40px; border-radius: 50%; background: #000; color: #00c853; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+.toast { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%) translateY(100px); background: #00c853; color: #000; padding: 14px 28px; border-radius: 12px; font-weight: 700; z-index: 2000; opacity: 0; transition: all 0.3s; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 </style>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <div class="city-name" id="cityName">فاس</div>
-  <div class="mode-indicator mode-day" id="modeIndicator">☀️ نهار</div>
+  <div class="mode-badge" id="modeBadge">☀️ نهار</div>
 </div>
 
-<!-- Tabs -->
 <div class="tabs">
-  <button class="tab active" onclick="switchTab(0)">عداد 1</button>
-  <button class="tab" onclick="switchTab(1)">عداد 2</button>
-  <button class="tab" onclick="switchTab(2)">عداد 3</button>
+  <button class="tab active" data-color="green" onclick="switchTab(0)">عداد 1</button>
+  <button class="tab" data-color="blue" onclick="switchTab(1)">عداد 2</button>
+  <button class="tab" data-color="orange" onclick="switchTab(2)">عداد 3</button>
 </div>
 
-<!-- Meter 1 -->
-<div class="meter-container active" id="meter0">
+<div class="meter-container active" id="meter0" data-color="green">
   <div class="price-display">
-    <div class="price-value" id="price0">0.00</div>
-    <div class="price-currency">درهم</div>
+    <div class="price-box"><div class="price-value" id="price0">0.00</div><div class="price-currency">درهم</div></div>
+    <div class="price-box"><div class="speed-value" id="speed0">0</div><div class="speed-unit">كم/س</div></div>
+  </div>
+  <div class="auto-wait-banner" id="autoWait0">
+    <div class="wait-title">⏸️ السيارة متوقفة · انتظار</div>
+    <div class="wait-counter">
+      <div class="wait-counter-item">
+        <div class="wait-counter-label">الدقائق</div>
+        <div class="wait-counter-value" id="waitMinutes0">0</div>
+      </div>
+      <div class="wait-counter-item">
+        <div class="wait-counter-label">التكلفة</div>
+        <div class="wait-counter-value cost" id="waitCost0">+0.00</div>
+      </div>
+      <div class="wait-counter-item">
+        <div class="wait-counter-label">المدة</div>
+        <div class="wait-counter-value" id="waitDuration0">00:00</div>
+      </div>
+    </div>
+    <div class="wait-progress"><div class="wait-progress-bar" id="waitProgress0"></div></div>
   </div>
   <div class="info-row">
-    <div class="info-box">
-      <div class="info-label">المسافة</div>
-      <div class="info-value" id="dist0">0.00</div>
-    </div>
-    <div class="info-box">
-      <div class="info-label">الوقت</div>
-      <div class="info-value" id="time0">00:00</div>
-    </div>
-    <div class="info-box">
-      <div class="info-label">الانتظار</div>
-      <div class="info-value" id="wait0">00:00</div>
-    </div>
+    <div class="info-box"><div class="info-label">المسافة (كم)</div><div class="info-value" id="dist0">0.00</div></div>
+    <div class="info-box"><div class="info-label">الوقت</div><div class="info-value" id="time0">00:00</div></div>
+    <div class="info-box"><div class="info-label">الانتظار</div><div class="info-value" id="wait0">00:00</div></div>
   </div>
   <div class="controls">
     <button class="ctrl-btn btn-start" id="start0" onclick="startMeter(0)">▶</button>
@@ -372,25 +194,24 @@ body {
   </div>
 </div>
 
-<!-- Meter 2 -->
-<div class="meter-container" id="meter1">
+<div class="meter-container" id="meter1" data-color="blue">
   <div class="price-display">
-    <div class="price-value" id="price1">0.00</div>
-    <div class="price-currency">درهم</div>
+    <div class="price-box"><div class="price-value" id="price1">0.00</div><div class="price-currency">درهم</div></div>
+    <div class="price-box"><div class="speed-value" id="speed1">0</div><div class="speed-unit">كم/س</div></div>
+  </div>
+  <div class="auto-wait-banner" id="autoWait1">
+    <div class="wait-title">⏸️ السيارة متوقفة · انتظار</div>
+    <div class="wait-counter">
+      <div class="wait-counter-item"><div class="wait-counter-label">الدقائق</div><div class="wait-counter-value" id="waitMinutes1">0</div></div>
+      <div class="wait-counter-item"><div class="wait-counter-label">التكلفة</div><div class="wait-counter-value cost" id="waitCost1">+0.00</div></div>
+      <div class="wait-counter-item"><div class="wait-counter-label">المدة</div><div class="wait-counter-value" id="waitDuration1">00:00</div></div>
+    </div>
+    <div class="wait-progress"><div class="wait-progress-bar" id="waitProgress1"></div></div>
   </div>
   <div class="info-row">
-    <div class="info-box">
-      <div class="info-label">المسافة</div>
-      <div class="info-value" id="dist1">0.00</div>
-    </div>
-    <div class="info-box">
-      <div class="info-label">الوقت</div>
-      <div class="info-value" id="time1">00:00</div>
-    </div>
-    <div class="info-box">
-      <div class="info-label">الانتظار</div>
-      <div class="info-value" id="wait1">00:00</div>
-    </div>
+    <div class="info-box"><div class="info-label">المسافة (كم)</div><div class="info-value" id="dist1">0.00</div></div>
+    <div class="info-box"><div class="info-label">الوقت</div><div class="info-value" id="time1">00:00</div></div>
+    <div class="info-box"><div class="info-label">الانتظار</div><div class="info-value" id="wait1">00:00</div></div>
   </div>
   <div class="controls">
     <button class="ctrl-btn btn-start" id="start1" onclick="startMeter(1)">▶</button>
@@ -400,25 +221,24 @@ body {
   </div>
 </div>
 
-<!-- Meter 3 -->
-<div class="meter-container" id="meter2">
+<div class="meter-container" id="meter2" data-color="orange">
   <div class="price-display">
-    <div class="price-value" id="price2">0.00</div>
-    <div class="price-currency">درهم</div>
+    <div class="price-box"><div class="price-value" id="price2">0.00</div><div class="price-currency">درهم</div></div>
+    <div class="price-box"><div class="speed-value" id="speed2">0</div><div class="speed-unit">كم/س</div></div>
+  </div>
+  <div class="auto-wait-banner" id="autoWait2">
+    <div class="wait-title">⏸️ السيارة متوقفة · انتظار</div>
+    <div class="wait-counter">
+      <div class="wait-counter-item"><div class="wait-counter-label">الدقائق</div><div class="wait-counter-value" id="waitMinutes2">0</div></div>
+      <div class="wait-counter-item"><div class="wait-counter-label">التكلفة</div><div class="wait-counter-value cost" id="waitCost2">+0.00</div></div>
+      <div class="wait-counter-item"><div class="wait-counter-label">المدة</div><div class="wait-counter-value" id="waitDuration2">00:00</div></div>
+    </div>
+    <div class="wait-progress"><div class="wait-progress-bar" id="waitProgress2"></div></div>
   </div>
   <div class="info-row">
-    <div class="info-box">
-      <div class="info-label">المسافة</div>
-      <div class="info-value" id="dist2">0.00</div>
-    </div>
-    <div class="info-box">
-      <div class="info-label">الوقت</div>
-      <div class="info-value" id="time2">00:00</div>
-    </div>
-    <div class="info-box">
-      <div class="info-label">الانتظار</div>
-      <div class="info-value" id="wait2">00:00</div>
-    </div>
+    <div class="info-box"><div class="info-label">المسافة (كم)</div><div class="info-value" id="dist2">0.00</div></div>
+    <div class="info-box"><div class="info-label">الوقت</div><div class="info-value" id="time2">00:00</div></div>
+    <div class="info-box"><div class="info-label">الانتظار</div><div class="info-value" id="wait2">00:00</div></div>
   </div>
   <div class="controls">
     <button class="ctrl-btn btn-start" id="start2" onclick="startMeter(2)">▶</button>
@@ -428,113 +248,282 @@ body {
   </div>
 </div>
 
-<!-- Bottom Bar -->
-<div class="bottom-bar">
-  <button class="bottom-btn" onclick="openCityModal()">
-    <span>🏙️</span>
-    المدينة
-  </button>
-  <button class="bottom-btn" onclick="openSettings()">
-    <span>⚙️</span>
-    التعريفات
-  </button>
-  <button class="bottom-btn" onclick="toggleMode()">
-    <span>🌓</span>
-    ليل/نهار
-  </button>
+<div class="radio-player" id="radioPlayer">
+  <div class="radio-player-icon">📻</div>
+  <div class="radio-player-info">
+    <div class="radio-player-name" id="radioPlayerName">---</div>
+    <div class="radio-player-status" id="radioPlayerStatus">جاري التشغيل...</div>
+  </div>
+  <button class="radio-player-btn" onclick="toggleRadio()">⏸</button>
 </div>
 
-<!-- City Modal -->
+<div class="bottom-bar">
+  <button class="bottom-btn" onclick="openCityModal()"><span>🏙️</span>المدينة</button>
+  <button class="bottom-btn" onclick="openSettings()"><span>⚙️</span>التعريفات</button>
+  <button class="bottom-btn" onclick="openRadioModal()"><span>📻</span>راديو</button>
+  <button class="bottom-btn" onclick="toggleMode()"><span>🌓</span>ليل/نهار</button>
+</div>
+
 <div class="modal" id="cityModal">
-  <div class="modal-header">
-    <div class="modal-title">🏙️ اختيار المدينة</div>
-    <button class="modal-close" onclick="closeModal('cityModal')">✕</button>
-  </div>
+  <div class="modal-header"><div class="modal-title">🏙️ اختيار المدينة</div><button class="modal-close" onclick="closeModal('cityModal')">✕</button></div>
+  <input type="text" class="search-input" id="citySearch" placeholder="🔍 ابحث عن مدينة..." oninput="filterCities()">
   <div class="city-list" id="cityList"></div>
 </div>
 
-<!-- Settings Modal -->
 <div class="modal" id="settingsModal">
-  <div class="modal-header">
-    <div class="modal-title">⚙️ تعديل التعريفات</div>
-    <button class="modal-close" onclick="closeModal('settingsModal')">✕</button>
+  <div class="modal-header"><div class="modal-title">⚙️ تعديل التعريفات</div><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
+  <div class="setting-group">
+    <div class="setting-title">💰 الانطلاقة (درهم)</div>
+    <div class="setting-row"><span class="setting-label">☀️ نهار</span><input type="number" class="setting-input" id="startDay" step="0.01"></div>
+    <div class="setting-row"><span class="setting-label">🌙 ليل</span><input type="number" class="setting-input" id="startNight" step="0.01"></div>
   </div>
   <div class="setting-group">
-    <div class="setting-title">الانطلاقة</div>
-    <div class="setting-row">
-      <span class="setting-label">نهار</span>
-      <input type="number" class="setting-input" id="startDay" step="0.01">
-    </div>
-    <div class="setting-row">
-      <span class="setting-label">ليل</span>
-      <input type="number" class="setting-input" id="startNight" step="0.01">
-    </div>
+    <div class="setting-title">🛣️ الكيلومتر (درهم/كم)</div>
+    <div class="setting-row"><span class="setting-label">☀️ نهار</span><input type="number" class="setting-input" id="kmDay" step="0.01"></div>
+    <div class="setting-row"><span class="setting-label">🌙 ليل</span><input type="number" class="setting-input" id="kmNight" step="0.01"></div>
   </div>
   <div class="setting-group">
-    <div class="setting-title">الكيلومتر</div>
-    <div class="setting-row">
-      <span class="setting-label">نهار</span>
-      <input type="number" class="setting-input" id="kmDay" step="0.01">
-    </div>
-    <div class="setting-row">
-      <span class="setting-label">ليل</span>
-      <input type="number" class="setting-input" id="kmNight" step="0.01">
-    </div>
+    <div class="setting-title">📊 الحد الأدنى (درهم)</div>
+    <div class="setting-row"><span class="setting-label">☀️ نهار</span><input type="number" class="setting-input" id="minDay" step="0.01"></div>
+    <div class="setting-row"><span class="setting-label">🌙 ليل</span><input type="number" class="setting-input" id="minNight" step="0.01"></div>
   </div>
   <div class="setting-group">
-    <div class="setting-title">الحد الأدنى</div>
-    <div class="setting-row">
-      <span class="setting-label">المبلغ</span>
-      <input type="number" class="setting-input" id="minimum" step="0.01">
-    </div>
+    <div class="setting-title">⏱️ ساعة الانتظار (درهم/ساعة)</div>
+    <div class="setting-row"><span class="setting-label">☀️ نهار</span><input type="number" class="setting-input" id="waitDay" step="0.01"></div>
+    <div class="setting-row"><span class="setting-label">🌙 ليل</span><input type="number" class="setting-input" id="waitNight" step="0.01"></div>
   </div>
   <div class="setting-group">
-    <div class="setting-title">ساعة الانتظار</div>
-    <div class="setting-row">
-      <span class="setting-label">المبلغ</span>
-      <input type="number" class="setting-input" id="waitHour" step="0.01">
-    </div>
-  </div>
-  <div class="setting-group">
-    <div class="setting-title">وقت الليل</div>
-    <div class="setting-row">
-      <span class="setting-label">من الساعة</span>
-      <input type="number" class="setting-input" id="nightStart" min="0" max="23">
-    </div>
-    <div class="setting-row">
-      <span class="setting-label">إلى الساعة</span>
-      <input type="number" class="setting-input" id="nightEnd" min="0" max="23">
-    </div>
+    <div class="setting-title">🌙 وقت الليل</div>
+    <div class="setting-row"><span class="setting-label">من الساعة</span><input type="number" class="setting-input" id="nightStart" min="0" max="23"></div>
+    <div class="setting-row"><span class="setting-label">إلى الساعة</span><input type="number" class="setting-input" id="nightEnd" min="0" max="23"></div>
   </div>
   <button class="save-btn" onclick="saveSettings()">💾 حفظ التعريفات</button>
 </div>
 
+<div class="modal" id="radioModal">
+  <div class="modal-header"><div class="modal-title">📻 راديو المغرب</div><button class="modal-close" onclick="closeModal('radioModal')">✕</button></div>
+  <div class="radio-stations" id="radioStations"></div>
+  <div class="custom-station">
+    <div class="custom-station-title">➕ إضافة محطة مخصصة</div>
+    <input type="text" class="custom-input" id="customStationName" placeholder="اسم المحطة (مثال: إذاعتي)">
+    <input type="text" class="custom-input" id="customStationUrl" placeholder="رابط البث (مثال: http://.../stream.mp3)">
+    <button class="custom-btn" onclick="addCustomStation()">➕ إضافة المحطة</button>
+  </div>
+  <div style="margin-top:16px;font-size:0.75rem;color:#888;text-align:center;padding:12px;background:#1a1a1a;border-radius:10px;">
+    💡 <strong style="color:#00c853">نصيحة:</strong> الراديو كيحتاج إنترنت.<br>
+    إلا ما خدمتش شي محطة، زد محطة مخصصة بالرابط ديالك.
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
+<audio id="radioAudio" preload="none"></audio>
 
 <script>
-// Cities with default tariffs
+let audioCtx = null;
+function getAudioCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+function playStartSound() {
+  try { const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.setValueAtTime(400, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.1); osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.2); gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3); osc.type = 'sine'; osc.start(); osc.stop(ctx.currentTime + 0.3); } catch (e) {}
+}
+function playStopSound() {
+  try { const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.setValueAtTime(1000, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.1); osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.2); gain.gain.setValueAtTime(0.2, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3); osc.type = 'triangle'; osc.start(); osc.stop(ctx.currentTime + 0.3); } catch (e) {}
+}
+function playClickSound() {
+  try { const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = 800; gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1); osc.type = 'sine'; osc.start(); osc.stop(ctx.currentTime + 0.1); } catch (e) {}
+}
+// صوت تيك قوي كل دقيقة انتظار
+function playWaitTickSound() {
+  try { 
+    const ctx = getAudioCtx(); 
+    // نغمة مزدوجة مسموعة
+    for (let i = 0; i < 2; i++) {
+      const osc = ctx.createOscillator(); 
+      const gain = ctx.createGain(); 
+      osc.connect(gain); 
+      gain.connect(ctx.destination); 
+      osc.frequency.value = 1500; 
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1); 
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.1); 
+      osc.type = 'sine'; 
+      osc.start(ctx.currentTime + i * 0.1); 
+      osc.stop(ctx.currentTime + i * 0.1 + 0.1); 
+    }
+  } catch (e) {}
+}
+function playAutoWaitSound() {
+  try { const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = 600; gain.gain.setValueAtTime(0.15, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2); osc.type = 'sine'; osc.start(); osc.stop(ctx.currentTime + 0.2); } catch (e) {}
+}
+function playAutoMoveSound() {
+  try { const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.15); gain.gain.setValueAtTime(0.15, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2); osc.type = 'sine'; osc.start(); osc.stop(ctx.currentTime + 0.2); } catch (e) {}
+}
+
 const cities = {
-  fes: { name: 'فاس', startDay: 1.50, startNight: 2.25, kmDay: 0.20, kmNight: 0.30, minimum: 6, waitHour: 12, nightStart: 20, nightEnd: 6 },
-  casablanca: { name: 'الدار البيضاء', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minimum: 7.50, waitHour: 12, nightStart: 20, nightEnd: 6 },
-  rabat: { name: 'الرباط', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minimum: 7.50, waitHour: 12, nightStart: 20, nightEnd: 6 },
-  marrakech: { name: 'مراكش', startDay: 7.00, startNight: 10.50, kmDay: 2.50, kmNight: 3.75, minimum: 7.00, waitHour: 12, nightStart: 20, nightEnd: 6 },
-  tanger: { name: 'طنجة', startDay: 2.50, startNight: 3.75, kmDay: 2.50, kmNight: 3.75, minimum: 7.50, waitHour: 12, nightStart: 20, nightEnd: 6 },
-  agadir: { name: 'أكادير', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minimum: 7.50, waitHour: 12, nightStart: 20, nightEnd: 6 },
-  meknes: { name: 'مكناس', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minimum: 7.50, waitHour: 12, nightStart: 20, nightEnd: 6 }
+  fes: { name: 'فاس', startDay: 1.50, startNight: 2.25, kmDay: 0.20, kmNight: 0.30, minDay: 6.00, minNight: 7.00, waitDay: 12.00, waitNight: 18.00, nightStart: 20, nightEnd: 6 },
+  essaouira: { name: 'الصويرة', startDay: 7.00, startNight: 10.50, kmDay: 0, kmNight: 0, minDay: 7.00, minNight: 7.00, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  marrakech: { name: 'مراكش', startDay: 7.00, startNight: 10.50, kmDay: 2.50, kmNight: 3.75, minDay: 7.00, minNight: 7.00, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  tanger: { name: 'طنجة', startDay: 2.50, startNight: 3.75, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  casablanca: { name: 'الدار البيضاء', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  rabat: { name: 'الرباط', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  agadir: { name: 'أكادير', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  meknes: { name: 'مكناس', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  oujda: { name: 'وجدة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  kenitra: { name: 'القنيطرة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  tetouan: { name: 'تطوان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  safi: { name: 'آسفي', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  mohammedia: { name: 'المحمدية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  eljadida: { name: 'الجديدة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  benslimane: { name: 'بن سليمان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  berrechid: { name: 'برشيد', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  khouribga: { name: 'خريبكة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  settat: { name: 'سطات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  benimellal: { name: 'بني ملال', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  errachidia: { name: 'الرشيدية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  ouarzazate: { name: 'ورزازات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  azilal: { name: 'أزيلال', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  hoceima: { name: 'الحسيمة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  nador: { name: 'الناظور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  taza: { name: 'تازة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  khemisset: { name: 'الخميسات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  sidikacem: { name: 'سيدي قاسم', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  larache: { name: 'العرائش', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  kalaasraghna: { name: 'قلعة السراغنة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  sidibennour: { name: 'سيدي بنور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  chichaoua: { name: 'شيشاوة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  rehamna: { name: 'الرحامنة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  youssoufia: { name: 'اليوسفية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  dakhla: { name: 'الداخلة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  laayoune: { name: 'العيون', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  tantan: { name: 'طانطان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  guelmim: { name: 'كلميم', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  sidiifni: { name: 'سيدي إفني', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  tiznit: { name: 'تزنيت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  inezgane: { name: 'إنزكان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  aitmelloul: { name: 'أيت ملول', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  tiflet: { name: 'تيفلت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  khnifra: { name: 'خنيفرة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  midelt: { name: 'ميدلت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  sfr: { name: 'صفرو', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  boujdour: { name: 'بوجدور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  smara: { name: 'السمارة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  tata: { name: 'طاطا', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  zagora: { name: 'زاكورة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  taourirt: { name: 'تاوريرت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  jerada: { name: 'جرسيف', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  fqihbensalah: { name: 'الفقيه بن صالح', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
+  taroudant: { name: 'تارودانت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 }
 };
+
+// محطات الراديو - روابط حقيقية متعددة لكل محطة
+const radioStations = [
+  { 
+    id: 'hit', name: 'Hit Radio', desc: 'موسيقى عصرية', icon: '🎵',
+    urls: [
+      'https://hitradio-maradio.ice.infomaniak.ch/hitradio-maradio-128.mp3',
+      'https://stream.hitradio.ma:8000/hitradio',
+      'https://hitradio.ice.infomaniak.ch/hitradio-128.mp3'
+    ]
+  },
+  { 
+    id: 'mfm', name: 'MFM Radio', desc: 'موسيقى مغربية', icon: '🎶',
+    urls: [
+      'https://mfmradio-maradio.ice.infomaniak.ch/mfmradio-maradio-128.mp3',
+      'https://stream.mfmradio.ma:8000/mfm',
+      'https://mfm.ice.infomaniak.ch/mfm-128.mp3'
+    ]
+  },
+  { 
+    id: 'medi1', name: 'Medi 1 Radio', desc: 'إذاعة المتوسط', icon: '🌊',
+    urls: [
+      'https://medi1radio-maradio.ice.infomaniak.ch/medi1radio-maradio-128.mp3',
+      'https://medi1.ice.infomaniak.ch/medi1-128.mp3'
+    ]
+  },
+  { 
+    id: 'aswat', name: 'Aswat', desc: 'أصوات', icon: '🎙️',
+    urls: [
+      'https://aswat-maradio.ice.infomaniak.ch/aswat-maradio-128.mp3',
+      'https://aswat.ice.infomaniak.ch/aswat-128.mp3'
+    ]
+  },
+  { 
+    id: 'mars', name: 'Radio Mars', desc: 'رياضة', icon: '⚽',
+    urls: [
+      'https://radiomars-maradio.ice.infomaniak.ch/radiomars-maradio-128.mp3',
+      'https://radiomars.ice.infomaniak.ch/radiomars-128.mp3'
+    ]
+  },
+  { 
+    id: 'luxe', name: 'Luxe Radio', desc: 'فاخرة', icon: '💎',
+    urls: [
+      'https://luxe-radio-maradio.ice.infomaniak.ch/luxe-radio-maradio-128.mp3',
+      'https://luxeradio.ice.infomaniak.ch/luxeradio-128.mp3'
+    ]
+  },
+  { 
+    id: 'medina', name: 'Medina FM', desc: 'إذاعة المدينة', icon: '🕌',
+    urls: [
+      'https://medinafm-maradio.ice.infomaniak.ch/medinafm-maradio-128.mp3',
+      'https://medinafm.ice.infomaniak.ch/medinafm-128.mp3'
+    ]
+  },
+  { 
+    id: 'chada', name: 'Chada FM', desc: 'شادي إف إم', icon: '🎧',
+    urls: [
+      'https://chadafm-maradio.ice.infomaniak.ch/chadafm-maradio-128.mp3',
+      'https://chadafm.ice.infomaniak.ch/chadafm-128.mp3'
+    ]
+  },
+  { 
+    id: 'plus', name: 'Radio Plus', desc: 'بلس', icon: '➕',
+    urls: [
+      'https://radio-plus-maradio.ice.infomaniak.ch/radio-plus-maradio-128.mp3',
+      'https://radioplus.ice.infomaniak.ch/radioplus-128.mp3'
+    ]
+  },
+  { 
+    id: '2m', name: 'Radio 2M', desc: 'إذاعة 2M', icon: '📺',
+    urls: [
+      'https://radio2m-maradio.ice.infomaniak.ch/radio2m-maradio-128.mp3',
+      'https://radio2m.ice.infomaniak.ch/radio2m-128.mp3'
+    ]
+  },
+  { 
+    id: 'amazigh', name: 'Radio Amazigh', desc: 'أمازيغ', icon: 'ⵣ',
+    urls: [
+      'https://radio-amazigh-maradio.ice.infomaniak.ch/radio-amazigh-maradio-128.mp3',
+      'https://radioamazigh.ice.infomaniak.ch/radioamazigh-128.mp3'
+    ]
+  },
+  { 
+    id: 'quran', name: 'القرآن الكريم', desc: 'إذاعة محمد السادس', icon: '📖',
+    urls: [
+      'https://radio-mohamed6-maradio.ice.infomaniak.ch/radio-mohamed6-maradio-128.mp3',
+      'https://radioquran.ice.infomaniak.ch/radioquran-128.mp3'
+    ]
+  }
+];
+
+let customStations = [];
+try { customStations = JSON.parse(localStorage.getItem('customStations') || '[]'); } catch (e) {}
 
 let currentCity = 'fes';
 let currentTab = 0;
 let isNight = false;
 let customTariffs = {};
+let currentSpeed = 0;
+let gpsWatchId = null;
+let lastGPSPosition = null;
+let currentStation = null;
+let isRadioPlaying = false;
+let currentUrlIndex = 0; // لتجربة الروابط المختلفة
+let lastWaitMinute = [0, 0, 0];
+let lastWaitSecond = [0, 0, 0]; // لتتبع الثواني للـ progress bar
 
 const meters = [
-  { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0 },
-  { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0 },
-  { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0 }
+  { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0, stationarySince: 0, autoWait: false },
+  { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0, stationarySince: 0, autoWait: false },
+  { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0, stationarySince: 0, autoWait: false }
 ];
 
-// Load data
 function loadData() {
   try {
     const data = JSON.parse(localStorage.getItem('taxiMeter') || '{}');
@@ -543,104 +532,92 @@ function loadData() {
     if (data.isNight !== undefined) isNight = data.isNight;
   } catch (e) {}
 }
-
-function saveData() {
-  localStorage.setItem('taxiMeter', JSON.stringify({
-    currentCity,
-    customTariffs,
-    isNight
-  }));
-}
-
-// Get current tariff
-function getTariff() {
-  const custom = customTariffs[currentCity];
-  if (custom) return custom;
-  return cities[currentCity];
-}
-
-// Update UI
+function saveData() { localStorage.setItem('taxiMeter', JSON.stringify({ currentCity, customTariffs, isNight })); }
+function getTariff() { const custom = customTariffs[currentCity]; if (custom) return custom; return cities[currentCity]; }
 function updateUI() {
   document.getElementById('cityName').textContent = cities[currentCity].name;
-  const mode = document.getElementById('modeIndicator');
-  if (isNight) {
-    mode.className = 'mode-indicator mode-night';
-    mode.textContent = '🌙 ليل';
-  } else {
-    mode.className = 'mode-indicator mode-day';
-    mode.textContent = '☀️ نهار';
-  }
+  document.getElementById('modeBadge').textContent = isNight ? '🌙 ليل' : '☀️ نهار';
 }
-
-// Switch tab
+function updateHeaderColor() {
+  const colors = { green: '#00c853', blue: '#00bcd4', orange: '#ff9800' };
+  document.documentElement.style.setProperty('--meter-color', colors[['green', 'blue', 'orange'][currentTab]]);
+}
 function switchTab(index) {
   currentTab = index;
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', i === index);
-  });
-  document.querySelectorAll('.meter-container').forEach((m, i) => {
-    m.classList.toggle('active', i === index);
-  });
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === index));
+  document.querySelectorAll('.meter-container').forEach((m, i) => m.classList.toggle('active', i === index));
+  updateHeaderColor();
 }
 
-// Start meter
 function startMeter(id) {
   const m = meters[id];
   if (m.state !== 'idle') return;
-  
+  playStartSound();
   m.state = 'running';
   m.startTime = Date.now();
   m.lastTick = Date.now();
   m.elapsed = 0;
   m.waitTime = 0;
   m.distance = 0;
-  
+  m.stationarySince = 0;
+  m.autoWait = false;
+  lastWaitMinute[id] = 0;
+  lastWaitSecond[id] = 0;
   const tariff = getTariff();
   m.price = isNight ? tariff.startNight : tariff.startDay;
-  
+  document.getElementById('autoWait' + id).classList.remove('show');
   updateMeterUI(id);
   showToast('▶️ انطلقت الرحلة');
 }
 
-// Toggle wait
 function toggleWait(id) {
   const m = meters[id];
   if (m.state === 'idle') return;
-  
+  playClickSound();
   if (m.state === 'running') {
     m.state = 'waiting';
     m.waitStart = Date.now();
-    showToast('⏸️ انتظار');
+    m.autoWait = false;
+    m.stationarySince = 0;
+    lastWaitMinute[id] = 0;
+    lastWaitSecond[id] = 0;
+    document.getElementById('autoWait' + id).classList.add('show');
+    showToast('⏸️ انتظار يدوي');
   } else if (m.state === 'waiting') {
     m.state = 'running';
     m.waitTime += Date.now() - m.waitStart;
     m.lastTick = Date.now();
+    m.stationarySince = 0;
+    m.autoWait = false;
+    lastWaitMinute[id] = 0;
+    lastWaitSecond[id] = 0;
+    document.getElementById('autoWait' + id).classList.remove('show');
     showToast('▶️ جري');
   }
   updateMeterUI(id);
 }
 
-// Stop meter
 function stopMeter(id) {
   const m = meters[id];
   if (m.state === 'idle') return;
-  
-  if (m.state === 'waiting') {
-    m.waitTime += Date.now() - m.waitStart;
-  }
-  
+  playStopSound();
+  if (m.state === 'waiting') m.waitTime += Date.now() - m.waitStart;
   const tariff = getTariff();
-  const min = tariff.minimum;
+  const min = isNight ? tariff.minNight : tariff.minDay;
   if (m.price < min) m.price = min;
-  
   m.state = 'idle';
+  m.stationarySince = 0;
+  m.autoWait = false;
+  lastWaitMinute[id] = 0;
+  lastWaitSecond[id] = 0;
+  document.getElementById('autoWait' + id).classList.remove('show');
   updateMeterUI(id);
-  showToast('■️ توقفت الرحلة · ' + m.price.toFixed(2) + ' درهم');
+  showToast('■️ توقفت · ' + m.price.toFixed(2) + ' درهم');
 }
 
-// Reset meter
 function resetMeter(id) {
   const m = meters[id];
+  playClickSound();
   m.state = 'idle';
   m.startTime = 0;
   m.elapsed = 0;
@@ -649,153 +626,392 @@ function resetMeter(id) {
   m.price = 0;
   m.lastTick = 0;
   m.waitStart = 0;
+  m.stationarySince = 0;
+  m.autoWait = false;
+  lastWaitMinute[id] = 0;
+  lastWaitSecond[id] = 0;
+  document.getElementById('autoWait' + id).classList.remove('show');
   updateMeterUI(id);
   showToast('↻️ تم إعادة العداد');
 }
 
-// Update meter UI
 function updateMeterUI(id) {
   const m = meters[id];
   document.getElementById('price' + id).textContent = m.price.toFixed(2);
+  document.getElementById('speed' + id).textContent = Math.round(currentSpeed);
   document.getElementById('dist' + id).textContent = m.distance.toFixed(2);
   document.getElementById('time' + id).textContent = formatTime(m.elapsed);
   document.getElementById('wait' + id).textContent = formatTime(m.waitTime + (m.state === 'waiting' ? Date.now() - m.waitStart : 0));
-  
   document.getElementById('start' + id).disabled = m.state !== 'idle';
   document.getElementById('wait' + id + 'btn').disabled = m.state === 'idle';
   document.getElementById('stop' + id).disabled = m.state === 'idle';
 }
 
-// Format time
 function formatTime(ms) {
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   return String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
 }
 
-// Timer
+// ===== حساب الأجرة بدقة - كل 500ms =====
 setInterval(() => {
   const now = Date.now();
   meters.forEach((m, i) => {
-    if (m.state === 'running') {
-      const delta = now - m.lastTick;
-      m.elapsed += delta;
-      m.lastTick = now;
-      
+    if (m.state === 'running' || m.state === 'waiting') {
       const tariff = getTariff();
       const kmRate = isNight ? tariff.kmNight : tariff.kmDay;
       const startRate = isNight ? tariff.startNight : tariff.startDay;
+      const waitRate = isNight ? tariff.waitNight : tariff.waitDay; // درهم/ساعة
       
+      if (m.state === 'running') {
+        const delta = now - m.lastTick;
+        m.elapsed += delta;
+        m.lastTick = now;
+      }
+      
+      // حساب وقت الانتظار الكلي
+      const totalWaitMs = m.waitTime + (m.state === 'waiting' ? now - m.waitStart : 0);
+      const totalWaitMinutes = totalWaitMs / 60000;
+      
+      // التكلفة = الدقائق × (السعر/الساعة ÷ 60)
+      const waitCost = totalWaitMinutes * (waitRate / 60);
       const kmCost = m.distance * kmRate;
-      const waitCost = (m.waitTime / 3600000) * tariff.waitHour;
-      
       m.price = startRate + kmCost + waitCost;
-      updateMeterUI(i);
-    } else if (m.state === 'waiting') {
-      const tariff = getTariff();
-      const kmRate = isNight ? tariff.kmNight : tariff.kmDay;
-      const startRate = isNight ? tariff.startNight : tariff.startDay;
       
-      const totalWait = m.waitTime + (now - m.waitStart);
-      const kmCost = m.distance * kmRate;
-      const waitCost = (totalWait / 3600000) * tariff.waitHour;
+      // ===== تحديث بانر الانتظار =====
+      if (m.state === 'waiting') {
+        const currentWaitMs = now - m.waitStart;
+        const currentMinutes = Math.floor(currentWaitMs / 60000);
+        const currentSeconds = Math.floor((currentWaitMs % 60000) / 1000);
+        
+        // صوت تيك كل دقيقة جديدة
+        if (currentMinutes > lastWaitMinute[i]) {
+          playWaitTickSound();
+          lastWaitMinute[i] = currentMinutes;
+          showToast('⏱️ +0.20 درهم · دقيقة ' + currentMinutes);
+        }
+        
+        // تحديث العناصر
+        const waitDurationEl = document.getElementById('waitDuration' + i);
+        const waitCostEl = document.getElementById('waitCost' + i);
+        const waitMinutesEl = document.getElementById('waitMinutes' + i);
+        const waitProgressEl = document.getElementById('waitProgress' + i);
+        
+        if (waitDurationEl) waitDurationEl.textContent = formatTime(currentWaitMs);
+        if (waitCostEl) waitCostEl.textContent = '+' + waitCost.toFixed(2);
+        if (waitMinutesEl) waitMinutesEl.textContent = currentMinutes;
+        
+        // شريط التقدم (60 ثانية = دقيقة)
+        if (waitProgressEl) {
+          const progress = (currentSeconds / 60) * 100;
+          waitProgressEl.style.width = progress + '%';
+        }
+      }
       
-      m.price = startRate + kmCost + waitCost;
       updateMeterUI(i);
     }
   });
 }, 500);
 
-// Toggle mode
 function toggleMode() {
   isNight = !isNight;
+  playClickSound();
   saveData();
   updateUI();
   showToast(isNight ? '🌙 وضع الليل' : '☀️ وضع النهار');
 }
 
-// City modal
 function openCityModal() {
-  const list = document.getElementById('cityList');
-  list.innerHTML = Object.entries(cities).map(([key, city]) => `
-    <div class="city-item ${key === currentCity ? 'selected' : ''}" onclick="selectCity('${key}')">
-      <div class="city-item-name">${city.name}</div>
-      <div class="city-item-code">${key.toUpperCase()}</div>
-    </div>
-  `).join('');
+  playClickSound();
+  buildCityList();
   document.getElementById('cityModal').classList.add('show');
 }
-
+function buildCityList() {
+  const list = document.getElementById('cityList');
+  list.innerHTML = Object.entries(cities).map(([key, city]) => 
+    `<div class="city-item ${key === currentCity ? 'selected' : ''}" onclick="selectCity('${key}')">
+      <div class="city-item-name">${city.name}</div>
+    </div>`
+  ).join('');
+}
+function filterCities() {
+  const q = document.getElementById('citySearch').value;
+  document.querySelectorAll('.city-item').forEach(item => {
+    const name = item.querySelector('.city-item-name').textContent;
+    item.style.display = name.includes(q) ? 'block' : 'none';
+  });
+}
 function selectCity(key) {
   currentCity = key;
+  playClickSound();
   saveData();
   updateUI();
   closeModal('cityModal');
   showToast('✅ ' + cities[key].name);
 }
 
-// Settings modal
 function openSettings() {
+  playClickSound();
   const tariff = getTariff();
   document.getElementById('startDay').value = tariff.startDay;
   document.getElementById('startNight').value = tariff.startNight;
   document.getElementById('kmDay').value = tariff.kmDay;
   document.getElementById('kmNight').value = tariff.kmNight;
-  document.getElementById('minimum').value = tariff.minimum;
-  document.getElementById('waitHour').value = tariff.waitHour;
+  document.getElementById('minDay').value = tariff.minDay;
+  document.getElementById('minNight').value = tariff.minNight;
+  document.getElementById('waitDay').value = tariff.waitDay;
+  document.getElementById('waitNight').value = tariff.waitNight;
   document.getElementById('nightStart').value = tariff.nightStart;
   document.getElementById('nightEnd').value = tariff.nightEnd;
   document.getElementById('settingsModal').classList.add('show');
 }
-
 function saveSettings() {
   customTariffs[currentCity] = {
     startDay: parseFloat(document.getElementById('startDay').value),
     startNight: parseFloat(document.getElementById('startNight').value),
     kmDay: parseFloat(document.getElementById('kmDay').value),
     kmNight: parseFloat(document.getElementById('kmNight').value),
-    minimum: parseFloat(document.getElementById('minimum').value),
-    waitHour: parseFloat(document.getElementById('waitHour').value),
+    minDay: parseFloat(document.getElementById('minDay').value),
+    minNight: parseFloat(document.getElementById('minNight').value),
+    waitDay: parseFloat(document.getElementById('waitDay').value),
+    waitNight: parseFloat(document.getElementById('waitNight').value),
     nightStart: parseInt(document.getElementById('nightStart').value),
     nightEnd: parseInt(document.getElementById('nightEnd').value)
   };
+  playClickSound();
   saveData();
   closeModal('settingsModal');
   showToast('✅ تم حفظ التعريفات');
 }
 
-// Modal
-function closeModal(id) {
-  document.getElementById(id).classList.remove('show');
+// ===== RADIO محسّن مع روابط متعددة =====
+function openRadioModal() {
+  playClickSound();
+  buildRadioList();
+  document.getElementById('radioModal').classList.add('show');
 }
 
-// Toast
+function buildRadioList() {
+  const list = document.getElementById('radioStations');
+  const allStations = [...radioStations, ...customStations];
+  list.innerHTML = allStations.map(s => {
+    const isCurrentStation = currentStation && currentStation.id === s.id;
+    const status = s.status || '';
+    const statusText = status === 'ok' ? '✅ يبث' : status === 'error' ? '❌ ما خدمش' : '';
+    return `
+      <div class="station-item ${isCurrentStation ? 'playing' : ''} ${status === 'error' ? 'error' : ''}">
+        <div class="station-icon">${s.icon || '📻'}</div>
+        <div class="station-info">
+          <div class="station-name">${s.name}</div>
+          <div class="station-desc">${s.desc || 'محطة مخصصة'}</div>
+          ${statusText ? `<div class="station-status ${status}">${statusText}</div>` : ''}
+        </div>
+        <button class="station-play" onclick="event.stopPropagation(); playStation('${s.id}')">${isCurrentStation && isRadioPlaying ? '⏸' : '▶'}</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function playStation(id) {
+  const allStations = [...radioStations, ...customStations];
+  const station = allStations.find(s => s.id === id);
+  if (!station) return;
+  
+  const audio = document.getElementById('radioAudio');
+  
+  // إذا كانت نفس المحطة
+  if (currentStation && currentStation.id === id) {
+    if (isRadioPlaying) {
+      audio.pause();
+      isRadioPlaying = false;
+      updateRadioUI();
+    } else {
+      tryPlayUrl(station, 0);
+    }
+  } else {
+    // محطة جديدة
+    currentStation = station;
+    currentUrlIndex = 0;
+    tryPlayUrl(station, 0);
+  }
+  buildRadioList();
+}
+
+// محاولة تشغيل رابط، إذا فشل نجرب الرابط التالي
+function tryPlayUrl(station, urlIndex) {
+  const audio = document.getElementById('radioAudio');
+  const urls = station.urls || [station.url];
+  
+  if (urlIndex >= urls.length) {
+    // كل الروابط فشلت
+    station.status = 'error';
+    showToast('❌ ' + station.name + ' ما خدمش · جرب محطة أخرى');
+    updateRadioUI();
+    buildRadioList();
+    return;
+  }
+  
+  const url = urls[urlIndex];
+  audio.src = url;
+  
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
+      isRadioPlaying = true;
+      station.status = 'ok';
+      currentUrlIndex = urlIndex;
+      updateRadioUI();
+      showToast('📻 ' + station.name);
+      buildRadioList();
+    }).catch(err => {
+      console.log('رابط ' + (urlIndex + 1) + ' فشل، نجرب التالي...');
+      // نجرب الرابط التالي
+      setTimeout(() => tryPlayUrl(station, urlIndex + 1), 100);
+    });
+  }
+}
+
+function toggleRadio() {
+  const audio = document.getElementById('radioAudio');
+  if (isRadioPlaying) {
+    audio.pause();
+    isRadioPlaying = false;
+  } else if (currentStation) {
+    tryPlayUrl(currentStation, currentUrlIndex);
+  }
+  updateRadioUI();
+}
+
+function updateRadioUI() {
+  const player = document.getElementById('radioPlayer');
+  if (currentStation) {
+    player.classList.add('show');
+    document.getElementById('radioPlayerName').textContent = currentStation.icon + ' ' + currentStation.name;
+    document.getElementById('radioPlayerStatus').textContent = isRadioPlaying ? '🔴 يبث مباشرة' : '⏸ متوقف';
+    player.querySelector('.radio-player-btn').textContent = isRadioPlaying ? '⏸' : '▶';
+    player.querySelector('.radio-player-icon').style.animationPlayState = isRadioPlaying ? 'running' : 'paused';
+  } else {
+    player.classList.remove('show');
+  }
+  if (document.getElementById('radioModal').classList.contains('show')) buildRadioList();
+}
+
+function addCustomStation() {
+  const name = document.getElementById('customStationName').value.trim();
+  const url = document.getElementById('customStationUrl').value.trim();
+  if (!name || !url) { showToast('❌ أدخل الاسم والرابط'); return; }
+  const newStation = { 
+    id: 'custom_' + Date.now(), 
+    name, 
+    url,
+    urls: [url],
+    icon: '📻', 
+    desc: 'محطة مخصصة' 
+  };
+  customStations.push(newStation);
+  localStorage.setItem('customStations', JSON.stringify(customStations));
+  document.getElementById('customStationName').value = '';
+  document.getElementById('customStationUrl').value = '';
+  buildRadioList();
+  showToast('✅ تمت الإضافة');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 function showToast(msg) {
   const toast = document.getElementById('toast');
   toast.textContent = msg;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
-
-// Auto night mode
 function checkNightMode() {
   const tariff = getTariff();
   const hour = new Date().getHours();
   const start = tariff.nightStart;
   const end = tariff.nightEnd;
-  
-  if (start > end) {
-    isNight = hour >= start || hour < end;
-  } else {
-    isNight = hour >= start && hour < end;
-  }
+  if (start > end) isNight = hour >= start || hour < end;
+  else isNight = hour >= start && hour < end;
   updateUI();
 }
 
-// Init
+function startGPS() {
+  if (!navigator.geolocation) { showToast('❌ GPS غير متوفر'); return; }
+  gpsWatchId = navigator.geolocation.watchPosition(
+    (position) => handleGPS(position),
+    (error) => { console.log('GPS error:', error); },
+    { enableHighAccuracy: true, maximumAge: 1000, timeout: 10000 }
+  );
+}
+
+function handleGPS(position) {
+  const coords = position.coords;
+  const speed = coords.speed;
+  const now = Date.now();
+  
+  let speedKmh = 0;
+  if (speed !== null && speed !== undefined && speed >= 0) speedKmh = speed * 3.6;
+  currentSpeed = speedKmh;
+  
+  if (lastGPSPosition) {
+    const distance = calculateDistance(lastGPSPosition.latitude, lastGPSPosition.longitude, coords.latitude, coords.longitude);
+    meters.forEach((m) => {
+      if (m.state === 'running' && distance > 0.01 && distance < 1) m.distance += distance;
+    });
+  }
+  lastGPSPosition = { latitude: coords.latitude, longitude: coords.longitude };
+  
+  const isStationary = speedKmh < 2;
+  
+  meters.forEach((m, i) => {
+    if (m.state === 'running' && !m.autoWait) {
+      if (isStationary) {
+        if (m.stationarySince === 0) m.stationarySince = now;
+        else if (now - m.stationarySince > 10000) {
+          m.state = 'waiting';
+          m.waitStart = now;
+          m.autoWait = true;
+          lastWaitMinute[i] = 0;
+          lastWaitSecond[i] = 0;
+          playAutoWaitSound();
+          document.getElementById('autoWait' + i).classList.add('show');
+          showToast('⏸️ السيارة واقفة · انتظار تلقائي');
+          updateMeterUI(i);
+        }
+      } else {
+        m.stationarySince = 0;
+      }
+    } else if (m.state === 'waiting' && m.autoWait) {
+      if (!isStationary) {
+        m.state = 'running';
+        m.waitTime += now - m.waitStart;
+        m.lastTick = now;
+        m.stationarySince = 0;
+        m.autoWait = false;
+        lastWaitMinute[i] = 0;
+        lastWaitSecond[i] = 0;
+        playAutoMoveSound();
+        document.getElementById('autoWait' + i).classList.remove('show');
+        showToast('▶️ السيارة تحركت · جري');
+        updateMeterUI(i);
+      }
+    }
+    if (m.state !== 'idle') document.getElementById('speed' + i).textContent = Math.round(currentSpeed);
+  });
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 loadData();
 updateUI();
+updateHeaderColor();
 checkNightMode();
+startGPS();
 setInterval(checkNightMode, 60000);
 </script>
 
