@@ -44,46 +44,38 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0a0a; color: 
 .info-label { font-size: 0.75rem; color: var(--meter-color); margin-bottom: 8px; font-weight: 600; opacity: 0.8; }
 .info-value { font-size: 1.6rem; font-weight: 700; font-family: 'Courier New', monospace; color: var(--meter-color-light); }
 
-.controls { display: flex; justify-content: space-around; gap: 16px; margin-top: auto; padding: 20px 0; }
-.ctrl-btn { width: 85px; height: 85px; border-radius: 50%; border: none; font-size: 2.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; background: var(--meter-color); color: #000; box-shadow: 0 4px 25px var(--meter-glow); font-weight: 700; }
+/* ===== الأزرار الكبيرة - طالعين فوق ===== */
+.controls { 
+  display: flex; 
+  justify-content: space-around; 
+  gap: 16px; 
+  margin-top: auto; 
+  padding: 30px 0 40px 0;
+}
+.ctrl-btn { 
+  width: 85px; 
+  height: 85px; 
+  border-radius: 50%; 
+  border: none; 
+  font-size: 2.2rem; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  background: var(--meter-color); 
+  color: #000; 
+  box-shadow: 0 4px 25px var(--meter-glow); 
+  font-weight: 700; 
+}
 .ctrl-btn:active { transform: scale(0.9); }
 .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; box-shadow: none; }
 .ctrl-btn.btn-wait { background: var(--meter-color-dark); color: #fff; }
 .ctrl-btn.btn-reset { opacity: 0.7; }
 
-/* ===== BOTTOM BAR محسّن - أكبر وأوضح ===== */
-.bottom-bar { 
-  display: flex; 
-  background: #000; 
-  border-top: 2px solid #222; 
-  flex-shrink: 0;
-  padding: 8px 4px;
-}
-.bottom-btn { 
-  flex: 1; 
-  padding: 14px 6px;
-  background: transparent; 
-  border: none; 
-  color: #888;
-  font-size: 0.85rem;
-  font-weight: 600; 
-  cursor: pointer; 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  gap: 6px;
-  border-radius: 10px;
-  transition: all 0.2s;
-}
-.bottom-btn span { 
-  font-size: 1.8rem;
-  line-height: 1;
-}
-.bottom-btn:active { 
-  background: #1a1a1a;
-  color: #fff;
-  transform: scale(0.95);
-}
+.bottom-bar { display: flex; background: #000; border-top: 2px solid #222; flex-shrink: 0; padding: 8px 4px; }
+.bottom-btn { flex: 1; padding: 14px 6px; background: transparent; border: none; color: #888; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; border-radius: 10px; }
+.bottom-btn span { font-size: 1.8rem; line-height: 1; }
+.bottom-btn:active { background: #1a1a1a; color: #fff; transform: scale(0.95); }
 
 .modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.97); z-index: 1000; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
 .modal.show { display: flex; }
@@ -128,14 +120,14 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0a0a; color: 
 .custom-input:focus { border-color: #00c853; }
 .custom-btn { width: 100%; background: #00c853; color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
-.radio-player { position: fixed; bottom: 90px; left: 0; right: 0; background: linear-gradient(90deg, #00c853, #00a344); padding: 10px 16px; display: none; align-items: center; gap: 12px; z-index: 500; box-shadow: 0 -4px 20px rgba(0, 200, 83, 0.4); }
+.radio-player { position: fixed; bottom: 90px; left: 0; right: 0; background: linear-gradient(90deg, #00c853, #00a344); padding: 10px 16px; display: none; align-items: center; gap: 12px; z-index: 500; }
 .radio-player.show { display: flex; }
 .radio-player-icon { font-size: 1.5rem; animation: radioSpin 3s linear infinite; }
 @keyframes radioSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .radio-player-info { flex: 1; color: #000; min-width: 0; }
 .radio-player-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .radio-player-status { font-size: 0.7rem; opacity: 0.8; }
-.radio-player-btn { width: 40px; height: 40px; border-radius: 50%; background: #000; color: #00c853; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.radio-player-btn { width: 40px; height: 40px; border-radius: 50%; background: #000; color: #00c853; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
 .toast { position: fixed; bottom: 130px; left: 50%; transform: translateX(-50%) translateY(100px); background: #00c853; color: #000; padding: 14px 28px; border-radius: 12px; font-weight: 700; z-index: 2000; opacity: 0; transition: all 0.3s; }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
@@ -279,11 +271,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0a0a; color: 
     <div class="setting-row"><span class="setting-label">☀️ نهار</span><input type="number" class="setting-input" id="waitDay" step="0.01"></div>
     <div class="setting-row"><span class="setting-label">🌙 ليل</span><input type="number" class="setting-input" id="waitNight" step="0.01"></div>
   </div>
-  <div class="setting-group">
-    <div class="setting-title">🌙 وقت الليل</div>
-    <div class="setting-row"><span class="setting-label">من الساعة</span><input type="number" class="setting-input" id="nightStart" min="0" max="23"></div>
-    <div class="setting-row"><span class="setting-label">إلى الساعة</span><input type="number" class="setting-input" id="nightEnd" min="0" max="23"></div>
-  </div>
   <button class="save-btn" onclick="saveSettings()">💾 حفظ التعريفات</button>
 </div>
 
@@ -295,9 +282,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0a0a0a; color: 
     <input type="text" class="custom-input" id="customStationName" placeholder="اسم المحطة">
     <input type="text" class="custom-input" id="customStationUrl" placeholder="رابط البث (mp3/stream)">
     <button class="custom-btn" onclick="addCustomStation()">إضافة</button>
-  </div>
-  <div style="margin-top:16px;font-size:0.75rem;color:#666;text-align:center">
-    ⚠️ الراديو كيحتاج إنترنت
   </div>
 </div>
 
@@ -320,16 +304,7 @@ function playWaitTickSound() {
   try { 
     const ctx = getAudioCtx(); 
     for (let i = 0; i < 2; i++) {
-      const osc = ctx.createOscillator(); 
-      const gain = ctx.createGain(); 
-      osc.connect(gain); 
-      gain.connect(ctx.destination); 
-      osc.frequency.value = 1500; 
-      gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1); 
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.1); 
-      osc.type = 'sine'; 
-      osc.start(ctx.currentTime + i * 0.1); 
-      osc.stop(ctx.currentTime + i * 0.1 + 0.1); 
+      const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = 1500; gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.1 + 0.1); osc.type = 'sine'; osc.start(ctx.currentTime + i * 0.1); osc.stop(ctx.currentTime + i * 0.1 + 0.1); 
     }
   } catch (e) {}
 }
@@ -340,75 +315,77 @@ function playAutoMoveSound() {
   try { const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.15); gain.gain.setValueAtTime(0.15, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2); osc.type = 'sine'; osc.start(); osc.stop(ctx.currentTime + 0.2); } catch (e) {}
 }
 
+// ===== المدن المغربية =====
+// الحد الأدنى: نهار = 6، ليل = 9
 const cities = {
-  fes: { name: 'فاس', startDay: 1.50, startNight: 2.25, kmDay: 0.20, kmNight: 0.30, minDay: 6.00, minNight: 7.00, waitDay: 12.00, waitNight: 18.00, nightStart: 20, nightEnd: 6 },
-  essaouira: { name: 'الصويرة', startDay: 7.00, startNight: 10.50, kmDay: 0, kmNight: 0, minDay: 7.00, minNight: 7.00, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  marrakech: { name: 'مراكش', startDay: 7.00, startNight: 10.50, kmDay: 2.50, kmNight: 3.75, minDay: 7.00, minNight: 7.00, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  tanger: { name: 'طنجة', startDay: 2.50, startNight: 3.75, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  casablanca: { name: 'الدار البيضاء', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  rabat: { name: 'الرباط', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  agadir: { name: 'أكادير', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  meknes: { name: 'مكناس', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  oujda: { name: 'وجدة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  kenitra: { name: 'القنيطرة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  tetouan: { name: 'تطوان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  safi: { name: 'آسفي', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  mohammedia: { name: 'المحمدية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  eljadida: { name: 'الجديدة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  benslimane: { name: 'بن سليمان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  berrechid: { name: 'برشيد', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  khouribga: { name: 'خريبكة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  settat: { name: 'سطات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  benimellal: { name: 'بني ملال', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  errachidia: { name: 'الرشيدية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  ouarzazate: { name: 'ورزازات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  azilal: { name: 'أزيلال', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  hoceima: { name: 'الحسيمة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  nador: { name: 'الناظور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  taza: { name: 'تازة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  khemisset: { name: 'الخميسات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  sidikacem: { name: 'سيدي قاسم', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  larache: { name: 'العرائش', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  kalaasraghna: { name: 'قلعة السراغنة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  sidibennour: { name: 'سيدي بنور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  chichaoua: { name: 'شيشاوة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  rehamna: { name: 'الرحامنة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  youssoufia: { name: 'اليوسفية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  dakhla: { name: 'الداخلة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  laayoune: { name: 'العيون', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  tantan: { name: 'طانطان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  guelmim: { name: 'كلميم', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  sidiifni: { name: 'سيدي إفني', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  tiznit: { name: 'تزنيت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  inezgane: { name: 'إنزكان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  aitmelloul: { name: 'أيت ملول', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  tiflet: { name: 'تيفلت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  khnifra: { name: 'خنيفرة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  midelt: { name: 'ميدلت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  sfr: { name: 'صفرو', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  boujdour: { name: 'بوجدور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  smara: { name: 'السمارة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  tata: { name: 'طاطا', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  zagora: { name: 'زاكورة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  taourirt: { name: 'تاوريرت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  jerada: { name: 'جرسيف', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  fqihbensalah: { name: 'الفقيه بن صالح', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 },
-  taroudant: { name: 'تارودانت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 7.50, waitDay: 12.00, waitNight: 12.00, nightStart: 20, nightEnd: 6 }
+  fes: { name: 'فاس', startDay: 1.50, startNight: 2.25, kmDay: 0.20, kmNight: 0.30, minDay: 6.00, minNight: 9.00, waitDay: 12.00, waitNight: 18.00 },
+  essaouira: { name: 'الصويرة', startDay: 7.00, startNight: 10.50, kmDay: 0, kmNight: 0, minDay: 7.00, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  marrakech: { name: 'مراكش', startDay: 7.00, startNight: 10.50, kmDay: 2.50, kmNight: 3.75, minDay: 7.00, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  tanger: { name: 'طنجة', startDay: 2.50, startNight: 3.75, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  casablanca: { name: 'الدار البيضاء', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  rabat: { name: 'الرباط', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  agadir: { name: 'أكادير', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  meknes: { name: 'مكناس', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  oujda: { name: 'وجدة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  kenitra: { name: 'القنيطرة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  tetouan: { name: 'تطوان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  safi: { name: 'آسفي', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  mohammedia: { name: 'المحمدية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  eljadida: { name: 'الجديدة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  benslimane: { name: 'بن سليمان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  berrechid: { name: 'برشيد', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  khouribga: { name: 'خريبكة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  settat: { name: 'سطات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  benimellal: { name: 'بني ملال', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  errachidia: { name: 'الرشيدية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  ouarzazate: { name: 'ورزازات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  azilal: { name: 'أزيلال', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  hoceima: { name: 'الحسيمة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  nador: { name: 'الناظور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  taza: { name: 'تازة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  khemisset: { name: 'الخميسات', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  sidikacem: { name: 'سيدي قاسم', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  larache: { name: 'العرائش', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  kalaasraghna: { name: 'قلعة السراغنة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  sidibennour: { name: 'سيدي بنور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  chichaoua: { name: 'شيشاوة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  rehamna: { name: 'الرحامنة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  youssoufia: { name: 'اليوسفية', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  dakhla: { name: 'الداخلة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  laayoune: { name: 'العيون', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  tantan: { name: 'طانطان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  guelmim: { name: 'كلميم', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  sidiifni: { name: 'سيدي إفني', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  tiznit: { name: 'تزنيت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  inezgane: { name: 'إنزكان', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  aitmelloul: { name: 'أيت ملول', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  tiflet: { name: 'تيفلت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  khnifra: { name: 'خنيفرة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  midelt: { name: 'ميدلت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  sfr: { name: 'صفرو', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  boujdour: { name: 'بوجدور', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  smara: { name: 'السمارة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  tata: { name: 'طاطا', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  zagora: { name: 'زاكورة', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  taourirt: { name: 'تاوريرت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  jerada: { name: 'جرسيف', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  fqihbensalah: { name: 'الفقيه بن صالح', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 },
+  taroudant: { name: 'تارودانت', startDay: 2.00, startNight: 3.00, kmDay: 2.50, kmNight: 3.75, minDay: 7.50, minNight: 9.00, waitDay: 12.00, waitNight: 12.00 }
 };
 
 const radioStations = [
-  { id: 'hit', name: 'Hit Radio', desc: 'موسيقى عصرية', icon: '🎵', urls: ['https://hitradio-maradio.ice.infomaniak.ch/hitradio-maradio-128.mp3', 'https://stream.hitradio.ma:8000/hitradio'] },
-  { id: 'mfm', name: 'MFM Radio', desc: 'موسيقى مغربية', icon: '🎶', urls: ['https://mfmradio-maradio.ice.infomaniak.ch/mfmradio-maradio-128.mp3', 'https://stream.mfmradio.ma:8000/mfm'] },
-  { id: 'medi1', name: 'Medi 1 Radio', desc: 'إذاعة المتوسط', icon: '🌊', urls: ['https://medi1radio-maradio.ice.infomaniak.ch/medi1radio-maradio-128.mp3', 'https://medi1.ice.infomaniak.ch/medi1-128.mp3'] },
-  { id: 'aswat', name: 'Aswat', desc: 'أصوات', icon: '🎙️', urls: ['https://aswat-maradio.ice.infomaniak.ch/aswat-maradio-128.mp3', 'https://aswat.ice.infomaniak.ch/aswat-128.mp3'] },
-  { id: 'mars', name: 'Radio Mars', desc: 'رياضة', icon: '⚽', urls: ['https://radiomars-maradio.ice.infomaniak.ch/radiomars-maradio-128.mp3', 'https://radiomars.ice.infomaniak.ch/radiomars-128.mp3'] },
-  { id: 'luxe', name: 'Luxe Radio', desc: 'فاخرة', icon: '💎', urls: ['https://luxe-radio-maradio.ice.infomaniak.ch/luxe-radio-maradio-128.mp3', 'https://luxeradio.ice.infomaniak.ch/luxeradio-128.mp3'] },
-  { id: 'medina', name: 'Medina FM', desc: 'إذاعة المدينة', icon: '🕌', urls: ['https://medinafm-maradio.ice.infomaniak.ch/medinafm-maradio-128.mp3', 'https://medinafm.ice.infomaniak.ch/medinafm-128.mp3'] },
-  { id: 'chada', name: 'Chada FM', desc: 'شادي إف إم', icon: '🎧', urls: ['https://chadafm-maradio.ice.infomaniak.ch/chadafm-maradio-128.mp3', 'https://chadafm.ice.infomaniak.ch/chadafm-128.mp3'] },
-  { id: 'plus', name: 'Radio Plus', desc: 'بلس', icon: '➕', urls: ['https://radio-plus-maradio.ice.infomaniak.ch/radio-plus-maradio-128.mp3', 'https://radioplus.ice.infomaniak.ch/radioplus-128.mp3'] },
-  { id: '2m', name: 'Radio 2M', desc: 'إذاعة 2M', icon: '📺', urls: ['https://radio2m-maradio.ice.infomaniak.ch/radio2m-maradio-128.mp3', 'https://radio2m.ice.infomaniak.ch/radio2m-128.mp3'] },
-  { id: 'amazigh', name: 'Radio Amazigh', desc: 'أمازيغ', icon: 'ⵣ', urls: ['https://radio-amazigh-maradio.ice.infomaniak.ch/radio-amazigh-maradio-128.mp3', 'https://radioamazigh.ice.infomaniak.ch/radioamazigh-128.mp3'] },
-  { id: 'quran', name: 'القرآن الكريم', desc: 'إذاعة محمد السادس', icon: '📖', urls: ['https://radio-mohamed6-maradio.ice.infomaniak.ch/radio-mohamed6-maradio-128.mp3', 'https://radioquran.ice.infomaniak.ch/radioquran-128.mp3'] }
+  { id: 'hit', name: 'Hit Radio', desc: 'موسيقى عصرية', icon: '🎵', urls: ['https://hitradio-maradio.ice.infomaniak.ch/hitradio-maradio-128.mp3'] },
+  { id: 'mfm', name: 'MFM Radio', desc: 'موسيقى مغربية', icon: '🎶', urls: ['https://mfmradio-maradio.ice.infomaniak.ch/mfmradio-maradio-128.mp3'] },
+  { id: 'medi1', name: 'Medi 1 Radio', desc: 'إذاعة المتوسط', icon: '🌊', urls: ['https://medi1radio-maradio.ice.infomaniak.ch/medi1radio-maradio-128.mp3'] },
+  { id: 'aswat', name: 'Aswat', desc: 'أصوات', icon: '🎙️', urls: ['https://aswat-maradio.ice.infomaniak.ch/aswat-maradio-128.mp3'] },
+  { id: 'mars', name: 'Radio Mars', desc: 'رياضة', icon: '⚽', urls: ['https://radiomars-maradio.ice.infomaniak.ch/radiomars-maradio-128.mp3'] },
+  { id: 'luxe', name: 'Luxe Radio', desc: 'فاخرة', icon: '💎', urls: ['https://luxe-radio-maradio.ice.infomaniak.ch/luxe-radio-maradio-128.mp3'] },
+  { id: 'medina', name: 'Medina FM', desc: 'إذاعة المدينة', icon: '🕌', urls: ['https://medinafm-maradio.ice.infomaniak.ch/medinafm-maradio-128.mp3'] },
+  { id: 'chada', name: 'Chada FM', desc: 'شادي إف إم', icon: '🎧', urls: ['https://chadafm-maradio.ice.infomaniak.ch/chadafm-maradio-128.mp3'] },
+  { id: 'plus', name: 'Radio Plus', desc: 'بلس', icon: '➕', urls: ['https://radio-plus-maradio.ice.infomaniak.ch/radio-plus-maradio-128.mp3'] },
+  { id: '2m', name: 'Radio 2M', desc: 'إذاعة 2M', icon: '📺', urls: ['https://radio2m-maradio.ice.infomaniak.ch/radio2m-maradio-128.mp3'] },
+  { id: 'amazigh', name: 'Radio Amazigh', desc: 'أمازيغ', icon: 'ⵣ', urls: ['https://radio-amazigh-maradio.ice.infomaniak.ch/radio-amazigh-maradio-128.mp3'] },
+  { id: 'quran', name: 'القرآن الكريم', desc: 'إذاعة محمد السادس', icon: '📖', urls: ['https://radio-mohamed6-maradio.ice.infomaniak.ch/radio-mohamed6-maradio-128.mp3'] }
 ];
 
 let customStations = [];
@@ -425,13 +402,42 @@ let currentStation = null;
 let isRadioPlaying = false;
 let currentUrlIndex = 0;
 let lastWaitMinute = [0, 0, 0];
-let lastWaitSecond = [0, 0, 0];
 
 const meters = [
   { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0, stationarySince: 0, autoWait: false },
   { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0, stationarySince: 0, autoWait: false },
   { state: 'idle', startTime: 0, elapsed: 0, waitTime: 0, distance: 0, price: 0, lastTick: 0, waitStart: 0, stationarySince: 0, autoWait: false }
 ];
+
+// ===== التوقيت الصيفي/الشتوي =====
+// المغرب: الصيفي من آخر أحد مارس إلى آخر أحد أكتوبر
+function isDST(date) {
+  const year = date.getFullYear();
+  
+  // آخر أحد من مارس
+  const lastDayMarch = new Date(year, 2, 31);
+  const lastSundayMarch = new Date(year, 2, 31 - lastDayMarch.getDay());
+  lastSundayMarch.setHours(3, 0, 0, 0); // الساعة 3 صباحاً
+  
+  // آخر أحد من أكتوبر
+  const lastDayOctober = new Date(year, 9, 31);
+  const lastSundayOctober = new Date(year, 9, 31 - lastDayOctober.getDay());
+  lastSundayOctober.setHours(3, 0, 0, 0);
+  
+  return date >= lastSundayMarch && date < lastSundayOctober;
+}
+
+// وقت الليل حسب الفصل
+function getNightHours() {
+  const now = new Date();
+  if (isDST(now)) {
+    // الصيفي: 21:00 → 05:00
+    return { start: 21, end: 5 };
+  } else {
+    // الشتوي: 20:00 → 06:00
+    return { start: 20, end: 6 };
+  }
+}
 
 function loadData() {
   try {
@@ -443,10 +449,15 @@ function loadData() {
 }
 function saveData() { localStorage.setItem('taxiMeter', JSON.stringify({ currentCity, customTariffs, isNight })); }
 function getTariff() { const custom = customTariffs[currentCity]; if (custom) return custom; return cities[currentCity]; }
+
 function updateUI() {
   document.getElementById('cityName').textContent = cities[currentCity].name;
-  document.getElementById('modeBadge').textContent = isNight ? '🌙 ليل' : '☀️ نهار';
+  const badge = document.getElementById('modeBadge');
+  const dst = isDST(new Date());
+  const season = dst ? '🌞 صيفي' : '🌧️ شتوي';
+  badge.textContent = isNight ? '🌙 ليل ' + season : '☀️ نهار ' + season;
 }
+
 function updateHeaderColor() {
   const colors = { green: '#00c853', blue: '#00bcd4', orange: '#ff9800' };
   document.documentElement.style.setProperty('--meter-color', colors[['green', 'blue', 'orange'][currentTab]]);
@@ -471,7 +482,6 @@ function startMeter(id) {
   m.stationarySince = 0;
   m.autoWait = false;
   lastWaitMinute[id] = 0;
-  lastWaitSecond[id] = 0;
   const tariff = getTariff();
   m.price = isNight ? tariff.startNight : tariff.startDay;
   document.getElementById('autoWait' + id).classList.remove('show');
@@ -489,7 +499,6 @@ function toggleWait(id) {
     m.autoWait = false;
     m.stationarySince = 0;
     lastWaitMinute[id] = 0;
-    lastWaitSecond[id] = 0;
     document.getElementById('autoWait' + id).classList.add('show');
     showToast('⏸️ انتظار يدوي');
   } else if (m.state === 'waiting') {
@@ -499,7 +508,6 @@ function toggleWait(id) {
     m.stationarySince = 0;
     m.autoWait = false;
     lastWaitMinute[id] = 0;
-    lastWaitSecond[id] = 0;
     document.getElementById('autoWait' + id).classList.remove('show');
     showToast('▶️ جري');
   }
@@ -518,7 +526,6 @@ function stopMeter(id) {
   m.stationarySince = 0;
   m.autoWait = false;
   lastWaitMinute[id] = 0;
-  lastWaitSecond[id] = 0;
   document.getElementById('autoWait' + id).classList.remove('show');
   updateMeterUI(id);
   showToast('■️ توقفت · ' + m.price.toFixed(2) + ' درهم');
@@ -538,7 +545,6 @@ function resetMeter(id) {
   m.stationarySince = 0;
   m.autoWait = false;
   lastWaitMinute[id] = 0;
-  lastWaitSecond[id] = 0;
   document.getElementById('autoWait' + id).classList.remove('show');
   updateMeterUI(id);
   showToast('↻️ تم إعادة العداد');
@@ -662,8 +668,6 @@ function openSettings() {
   document.getElementById('minNight').value = tariff.minNight;
   document.getElementById('waitDay').value = tariff.waitDay;
   document.getElementById('waitNight').value = tariff.waitNight;
-  document.getElementById('nightStart').value = tariff.nightStart;
-  document.getElementById('nightEnd').value = tariff.nightEnd;
   document.getElementById('settingsModal').classList.add('show');
 }
 function saveSettings() {
@@ -675,9 +679,7 @@ function saveSettings() {
     minDay: parseFloat(document.getElementById('minDay').value),
     minNight: parseFloat(document.getElementById('minNight').value),
     waitDay: parseFloat(document.getElementById('waitDay').value),
-    waitNight: parseFloat(document.getElementById('waitNight').value),
-    nightStart: parseInt(document.getElementById('nightStart').value),
-    nightEnd: parseInt(document.getElementById('nightEnd').value)
+    waitNight: parseFloat(document.getElementById('waitNight').value)
   };
   playClickSound();
   saveData();
@@ -795,14 +797,7 @@ function addCustomStation() {
   const name = document.getElementById('customStationName').value.trim();
   const url = document.getElementById('customStationUrl').value.trim();
   if (!name || !url) { showToast('❌ أدخل الاسم والرابط'); return; }
-  const newStation = { 
-    id: 'custom_' + Date.now(), 
-    name, 
-    url,
-    urls: [url],
-    icon: '📻', 
-    desc: 'محطة مخصصة' 
-  };
+  const newStation = { id: 'custom_' + Date.now(), name, url, urls: [url], icon: '📻', desc: 'محطة مخصصة' };
   customStations.push(newStation);
   localStorage.setItem('customStations', JSON.stringify(customStations));
   document.getElementById('customStationName').value = '';
@@ -818,13 +813,19 @@ function showToast(msg) {
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2500);
 }
+
+// ===== التوقيت الصيفي/الشتوي =====
 function checkNightMode() {
-  const tariff = getTariff();
   const hour = new Date().getHours();
-  const start = tariff.nightStart;
-  const end = tariff.nightEnd;
-  if (start > end) isNight = hour >= start || hour < end;
-  else isNight = hour >= start && hour < end;
+  const nightHours = getNightHours();
+  const start = nightHours.start;
+  const end = nightHours.end;
+  
+  if (start > end) {
+    isNight = hour >= start || hour < end;
+  } else {
+    isNight = hour >= start && hour < end;
+  }
   updateUI();
 }
 
@@ -865,7 +866,6 @@ function handleGPS(position) {
           m.waitStart = now;
           m.autoWait = true;
           lastWaitMinute[i] = 0;
-          lastWaitSecond[i] = 0;
           playAutoWaitSound();
           document.getElementById('autoWait' + i).classList.add('show');
           showToast('⏸️ السيارة واقفة · انتظار تلقائي');
@@ -882,7 +882,6 @@ function handleGPS(position) {
         m.stationarySince = 0;
         m.autoWait = false;
         lastWaitMinute[i] = 0;
-        lastWaitSecond[i] = 0;
         playAutoMoveSound();
         document.getElementById('autoWait' + i).classList.remove('show');
         showToast('▶️ السيارة تحركت · جري');
